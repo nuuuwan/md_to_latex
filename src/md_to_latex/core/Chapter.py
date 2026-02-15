@@ -108,3 +108,6 @@ class Chapter:
         with doc.create(Section(self.title)):
             latex_content = self._parse_markdown_to_latex(self.content)
             doc.append(NoEscape(latex_content))
+
+        # Add page break after chapter
+        doc.append(NoEscape(r"\newpage"))

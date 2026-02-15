@@ -36,13 +36,16 @@ The library supports the following Markdown elements:
 
 The generated PDF follows professional book formatting standards:
 
-- **Font**: Attractive book-optimized typeface
+- **Font**: Attractive book-optimized typeface (Palatino)
 - **Paper**: A4 size
 - **Spacing**: Double-spaced text
 - **Printing**: Formatted for double-sided printing
 - **Margins**: One-inch margins on all sides
 - **Pages**: Numbered throughout
 - **Table of Contents**: Automatically generated
+- **Title Page**: Includes book title and total word count
+- **Copyright Page**: Standard copyright notice on page 2
+- **Chapter Breaks**: Each chapter ends with a page break
 
 ## Expected Book Directory Structure
 

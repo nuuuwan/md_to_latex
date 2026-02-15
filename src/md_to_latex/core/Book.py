@@ -21,6 +21,7 @@ class Book:
         self.about_author = self._load_about_file("about-the-author.md")
         self.about_book = self._load_about_file("about-the-book.md")
         self.output_dir = f"{book_dir}.latex"
+        self.word_count = 0  # Will be calculated when generating
 
     def _load_parts(self):
         """Load all parts from the parts directory."""
@@ -56,6 +57,14 @@ class Book:
             with open(file_path, "r", encoding="utf-8") as f:
                 return f.read()
         return None
+
+    def _count_words(self):
+        """Count total words in all chapters."""
+        word_count = 0
+        for part in self.parts:
+            for chapter in part.chapters:
+                word_count += len(chapter.content.split())
+        return word_count
 
     def _add_formatting_packages(self, doc):
         """Add formatting packages to document preamble."""
@@ -114,6 +123,24 @@ class Book:
     def _add_front_matter(self, doc):
         """Add title, table of contents, and about sections."""
         doc.append(NoEscape(r"\maketitle"))
+
+        # Add copyright page
+        doc.append(NoEscape(r"\thispagestyle{empty}"))
+        doc.append(NoEscape(r"\vspace*{\fill}"))
+        doc.append(NoEscape(r"\begin{center}"))
+        doc.append(NoEscape(r"\textbf{Copyright Notice}\\"))
+        doc.append(NoEscape(r"\vspace{1em}"))
+        doc.append(
+            NoEscape(
+                r"All rights reserved. No part of this publication may be "
+                r"reproduced, distributed, or transmitted in any form or by "
+                r"any means without the prior written permission of the author."
+            )
+        )
+        doc.append(NoEscape(r"\end{center}"))
+        doc.append(NoEscape(r"\vspace*{\fill}"))
+        doc.append(NoEscape(r"\newpage"))
+
         doc.append(NoEscape(r"\tableofcontents"))
         doc.append(NoEscape(r"\newpage"))
 
@@ -157,7 +184,15 @@ class Book:
 
         self._configure_document(doc)
 
-        doc.preamble.append(Command("title", self.title))
+        # Calculate word count
+        self.word_count = self._count_words()
+
+        # Add title with word count
+        title_with_count = (
+            f"{self.title}\\\\\\vspace{{0.5em}}"
+            f"{{\\large Word Count: {self.word_count:,}}}"
+        )
+        doc.preamble.append(Command("title", NoEscape(title_with_count)))
         doc.preamble.append(Command("date", NoEscape(r"\today")))
 
         self._add_front_matter(doc)
