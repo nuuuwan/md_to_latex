@@ -96,6 +96,11 @@ class Chapter:
         # Handle paragraphs (double newlines)
         text = re.sub(r"\n\n+", r"\n\n", text)
 
+        # Clean up problematic Unicode characters
+        # U+2028 (line separator) and U+2029 (paragraph separator)
+        text = text.replace("\u2028", " ")
+        text = text.replace("\u2029", "\n\n")
+
         return text
 
     def to_latex(self, doc):

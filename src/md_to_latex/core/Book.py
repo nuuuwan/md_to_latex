@@ -71,7 +71,7 @@ class Book:
         doc.preamble.append(
             Package(
                 "geometry",
-                options=["margin=1in", "a4paper"],
+                options=["margin=1in", "a4paper", "headheight=15pt"],
             )
         )
         doc.preamble.append(Package("setspace"))
