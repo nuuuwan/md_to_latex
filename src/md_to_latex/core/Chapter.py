@@ -90,6 +90,9 @@ class Chapter:
         text = self._convert_headings(text)
         text = self._convert_bold_italic(text)
 
+        # Escape remaining underscores (those not part of markdown)
+        text = re.sub(r"_", r"\\_", text)
+
         # Quotes: "text" -> \say{text}
         text = re.sub(r'"([^"]+)"', r"\\say{\1}", text)
 

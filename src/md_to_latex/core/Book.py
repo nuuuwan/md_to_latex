@@ -1,4 +1,7 @@
 import os
+import re
+import subprocess
+import sys
 
 from pylatex import Command, Document, NoEscape, Package, Section
 
@@ -18,8 +21,12 @@ class Book:
         self.book_dir = book_dir
         self.title = os.path.basename(book_dir)
         self.parts = self._load_parts()
-        self.about_author = self._load_about_file("about-the-author.md")
-        self.about_book = self._load_about_file("about-the-book.md")
+        self.about_author_title, self.about_author = self._load_about_file(
+            "about-the-author.md"
+        )
+        self.about_book_title, self.about_book = self._load_about_file(
+            "about-the-book.md"
+        )
         self.output_dir = f"{book_dir}.latex"
         self.word_count = 0  # Will be calculated when generating
 
@@ -55,8 +62,19 @@ class Book:
         file_path = os.path.join(self.book_dir, filename)
         if os.path.isfile(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
-                return f.read()
-        return None
+                lines = f.readlines()
+
+            if not lines:
+                return None, None
+
+            # Extract title from first line
+            title = re.sub(r"^#+\s*", "", lines[0].strip())
+
+            # Content is everything after the first line
+            content = "".join(lines[1:]) if len(lines) > 1 else ""
+
+            return title, content
+        return None, None
 
     def _count_words(self):
         """Count total words in all chapters."""
@@ -65,6 +83,32 @@ class Book:
             for chapter in part.chapters:
                 word_count += len(chapter.content.split())
         return word_count
+
+    def _process_markdown(self, text):
+        """Convert markdown formatting to LaTeX."""
+        # First escape LaTeX special characters (except those used in markdown)
+        # Escape underscores that are not part of markdown italic
+        text = re.sub(r"_(?!_)", r"\\_", text)
+
+        # Bold: **text**
+        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
+
+        # Italic: *text*
+        text = re.sub(
+            r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)",
+            r"\\textit{\1}",
+            text,
+            flags=re.DOTALL,
+        )
+
+        # Quotes: "text" -> \say{text}
+        text = re.sub(r'"([^"]+)"', r"\\say{\1}", text)
+
+        # Clean up problematic Unicode characters
+        text = text.replace("\u2028", " ")
+        text = text.replace("\u2029", "\n\n")
+
+        return text
 
     def _add_formatting_packages(self, doc):
         """Add formatting packages to document preamble."""
@@ -93,9 +137,7 @@ class Book:
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
-            NoEscape(
-                r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}"
-            )
+            NoEscape(r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}")
         )
 
     def _configure_headers(self, doc):
@@ -106,8 +148,7 @@ class Book:
         )
         doc.preamble.append(
             NoEscape(
-                r"\titleformat{\subsection}{\large}"
-                r"{\thesubsection}{1em}{}"
+                r"\titleformat{\subsection}{\large}" r"{\thesubsection}{1em}{}"
             )
         )
 
@@ -174,23 +215,31 @@ class Book:
         doc.append(NoEscape(r"\newpage"))
 
         if self.about_book:
-            with doc.create(Section("About the Book", numbering=False)):
-                doc.append(self.about_book)
+            title = self.about_book_title or "About the Book"
+            with doc.create(Section(title, numbering=False)):
+                processed_content = self._process_markdown(self.about_book)
+                doc.append(NoEscape(processed_content))
             doc.append(NoEscape(r"\newpage"))
 
         if self.about_author:
-            with doc.create(Section("About the Author", numbering=False)):
-                doc.append(self.about_author)
+            title = self.about_author_title or "About the Author"
+            with doc.create(Section(title, numbering=False)):
+                processed_content = self._process_markdown(self.about_author)
+                doc.append(NoEscape(processed_content))
             doc.append(NoEscape(r"\newpage"))
 
     def _generate_output(self, doc, output_path):
         """Generate PDF or LaTeX file."""
         try:
-            doc.generate_pdf(
-                output_path, clean_tex=False, compiler="pdflatex"
-            )
-            print(f"PDF generated successfully: {output_path}.pdf")
-            return f"{output_path}.pdf"
+            doc.generate_pdf(output_path, clean_tex=False, compiler="pdflatex")
+            pdf_path = f"{output_path}.pdf"
+            print(f"PDF generated successfully: {pdf_path}")
+
+            # Open the PDF on macOS
+            if sys.platform == "darwin":
+                subprocess.run(["open", pdf_path])
+
+            return pdf_path
         except Exception as e:
             print(f"Error generating PDF: {e}")
             doc.generate_tex(output_path)
