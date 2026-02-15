@@ -92,8 +92,7 @@ class Book:
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
             NoEscape(
-                r"\renewcommand{\say}[1]"
-                r"{\textcolor{maroon}{\guillemotleft #1\guillemotright}}"
+                r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}"
             )
         )
 
