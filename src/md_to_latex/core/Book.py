@@ -81,8 +81,7 @@ class Book:
 
     def _add_font_packages(self, doc):
         """Add font packages to document preamble."""
-        doc.preamble.append(Package("palatino"))
-        doc.preamble.append(Package("mathpazo"))
+        doc.preamble.append(Package("ebgaramond"))
         doc.preamble.append(Package("inputenc", options=["utf8"]))
         doc.preamble.append(Package("fontenc", options=["T1"]))
 
@@ -106,7 +105,7 @@ class Book:
         - A4 paper, double-sided printing
         - One-inch margins all around
         - Double-spacing
-        - Attractive book font (Palatino)
+        - Attractive book font (EB Garamond)
         - Maroon color for quotes using \say command
         - Table of contents
         - Page numbering

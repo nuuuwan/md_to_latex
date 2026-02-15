@@ -36,7 +36,7 @@ The library supports the following Markdown elements:
 
 The generated PDF follows professional book formatting standards:
 
-- **Font**: Attractive book-optimized typeface (Palatino)
+- **Font**: Attractive book-optimized typeface (EB Garamond)
 - **Paper**: A4 size
 - **Spacing**: Double-spaced text
 - **Printing**: Formatted for double-sided printing
