@@ -91,7 +91,9 @@ class Book:
         text = re.sub(r"_(?!_)", r"\\_", text)
 
         # Bold: **text**
-        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
+        text = re.sub(
+            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
+        )
 
         # Italic: *text*
         text = re.sub(
@@ -137,7 +139,9 @@ class Book:
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
-            NoEscape(r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}")
+            NoEscape(
+                r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}"
+            )
         )
 
     def _configure_headers(self, doc):
@@ -148,7 +152,8 @@ class Book:
         )
         doc.preamble.append(
             NoEscape(
-                r"\titleformat{\subsection}{\large}" r"{\thesubsection}{1em}{}"
+                r"\titleformat{\subsection}{\large}"
+                r"{\thesubsection}{1em}{}"
             )
         )
 
@@ -231,7 +236,28 @@ class Book:
     def _generate_output(self, doc, output_path):
         """Generate PDF or LaTeX file."""
         try:
-            doc.generate_pdf(output_path, clean_tex=False, compiler="pdflatex")
+            # Generate the .tex file first
+            doc.generate_tex(output_path)
+            tex_file = f"{output_path}.tex"
+            tex_dir = os.path.dirname(tex_file)
+            tex_filename = os.path.basename(tex_file)
+
+            # Run pdflatex twice to generate table of contents
+            # First pass creates .toc file, second pass uses it
+            for i in range(2):
+                result = subprocess.run(
+                    ["pdflatex", "--interaction=nonstopmode", tex_filename],
+                    cwd=tex_dir,
+                    capture_output=True,
+                    text=True,
+                )
+                if result.returncode != 0:
+                    print(f"pdflatex stdout: {result.stdout}")
+                    print(f"pdflatex stderr: {result.stderr}")
+                    raise Exception(
+                        f"pdflatex failed with return code {result.returncode}"
+                    )
+
             pdf_path = f"{output_path}.pdf"
             print(f"PDF generated successfully: {pdf_path}")
 
