@@ -14,11 +14,22 @@ pip install -r requirements.txt
 python workflows/pipeline.py <book_directory_path>
 ```
 
+### Example
+
+Try it out with the included example book:
+
+```bash
+python workflows/pipeline.py tests/input/example-book
+```
+
+This will generate `tests/input/example-book.latex/` containing the LaTeX source and PDF.
+
 ## Supported Markdown Features
 
 The library supports the following Markdown elements:
 
 - **Bold** and *Italic* text formatting
+- **Headings**: `##` (subsection), `###` (subsection), `####` (subsubsection)
 - **Quotes**: Implemented using LaTeX `\say` command and rendered in maroon font color
 
 ## Output Formatting
@@ -40,10 +51,23 @@ Your book directory should have the following structure:
 - **Parts**: Located in a `parts/` folder
   - Each part is in a subfolder named `part-<n>-<part_name>`
   - Chapter files for each part are stored within the respective part directory
+  - **Important**: The first line of each chapter file is used as the chapter title
 - **About sections**:
   - `about-the-author.md` - Information about the author
   - `about-the-book.md` - Book description and details
   - Both files should be in the root directory
+
+### Chapter File Format
+
+Each chapter markdown file should start with the chapter title on the first line:
+
+```markdown
+# Chapter Title
+
+Chapter content starts here...
+```
+
+The first line (with or without the `#` marker) will be used as the chapter title in the LaTeX output.
 
 ## Library Structure
 
@@ -58,3 +82,17 @@ The `Book` class provides a `toLatex()` method that generates the LaTeX output u
 ## Output
 
 The generated files (.tex, .pdf, and supporting files) are written to a new directory named `<book_directory_path>.latex`
+
+## Testing
+
+Run the basic tests to verify the installation:
+
+```bash
+python tests/test_basic.py
+```
+
+## Requirements
+
+- Python 3.7+
+- LaTeX distribution (e.g., TeX Live, MiKTeX) for PDF generation
+- Required Python packages (see [requirements.txt](requirements.txt))
