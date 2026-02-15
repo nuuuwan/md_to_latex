@@ -36,28 +36,15 @@ class Chapter:
 
         return content
 
-    def _parse_markdown_to_latex(self, text):
-        """
-        Convert markdown formatting to LaTeX.
-
-        Supports:
-        - Bold: **text** or __text__ -> \\textbf{text}
-        - Italic: *text* or _text_ -> \\textit{text}
-        - Quotes: "text" -> \\say{text} in maroon color
-        - Headings: ## Heading -> \\subsection{Heading}
-        """
-        # Convert markdown headings to LaTeX sections
-        # #### Heading -> \subsubsection{Heading}
+    def _convert_headings(self, text):
+        """Convert markdown headings to LaTeX sections."""
         text = re.sub(r"####\s+(.+)", r"\\subsubsection{\1}", text)
-        # ### Heading -> \subsection{Heading}
         text = re.sub(r"###\s+(.+)", r"\\subsection{\1}", text)
-        # ## Heading -> \subsection{Heading}
         text = re.sub(r"##\s+(.+)", r"\\subsection{\1}", text)
+        return text
 
-        # Process bold and italic
-        # (order matters to handle **_text_** correctly)
-        # Use DOTALL flag to match across line breaks
-
+    def _convert_bold_italic(self, text):
+        """Convert bold and italic markdown to LaTeX."""
         # Bold and italic: ***text*** or ___text___
         text = re.sub(
             r"\*\*\*(.+?)\*\*\*",
@@ -76,24 +63,34 @@ class Chapter:
         text = re.sub(r"__(.+?)__", r"\\textbf{\1}", text, flags=re.DOTALL)
 
         # Italic: *text* or _text_
-        # Match * for italic (single asterisk not preceded/followed by another
-        # *)
         text = re.sub(
             r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)",
             r"\\textit{\1}",
             text,
             flags=re.DOTALL,
         )
-        # For underscores, match single underscores (not double)
         text = re.sub(
             r"(?<!_)_(?!_)(.+?)(?<!_)_(?!_)",
             r"\\textit{\1}",
             text,
             flags=re.DOTALL,
         )
+        return text
+
+    def _parse_markdown_to_latex(self, text):
+        """
+        Convert markdown formatting to LaTeX.
+
+        Supports:
+        - Bold: **text** or __text__ -> \\textbf{text}
+        - Italic: *text* or _text_ -> \\textit{text}
+        - Quotes: "text" -> \\say{text} in maroon color
+        - Headings: ## Heading -> \\subsection{Heading}
+        """
+        text = self._convert_headings(text)
+        text = self._convert_bold_italic(text)
 
         # Quotes: "text" -> \say{text}
-        # (will be styled in maroon in the preamble)
         text = re.sub(r'"([^"]+)"', r"\\say{\1}", text)
 
         # Handle paragraphs (double newlines)

@@ -46,7 +46,7 @@ def main():
     for i, part in enumerate(book.parts, 1):
         print(f"  Part {i}: {part.title} ({len(part.chapters)} chapters)")
 
-    print(f"\nGenerating LaTeX/PDF...")
+    print("\nGenerating LaTeX/PDF...")
     print("-" * 60)
 
     # Generate LaTeX and PDF
