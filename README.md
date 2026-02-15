@@ -42,10 +42,13 @@ The generated PDF follows professional book formatting standards:
 - **Printing**: Formatted for double-sided printing
 - **Margins**: One-inch margins on all sides
 - **Pages**: Numbered throughout
+  - Left pages (even): Page number on left, book title in center of header
+  - Right pages (odd): Chapter name in center of header, page number on right
 - **Table of Contents**: Automatically generated
 - **Title Page**: Includes book title and total word count
 - **Copyright Page**: Standard copyright notice on page 2
 - **Chapter Breaks**: Each chapter ends with a page break
+- **Section Headings**: Non-bold formatting for cleaner appearance
 
 ## Expected Book Directory Structure
 

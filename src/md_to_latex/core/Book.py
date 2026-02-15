@@ -78,6 +78,8 @@ class Book:
         doc.preamble.append(Command("doublespacing"))
         doc.preamble.append(Package("microtype"))
         doc.preamble.append(Package("booktabs"))
+        doc.preamble.append(Package("fancyhdr"))
+        doc.preamble.append(Package("titlesec"))
 
     def _add_font_packages(self, doc):
         """Add font packages to document preamble."""
@@ -95,6 +97,34 @@ class Book:
                 r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}"
             )
         )
+
+    def _configure_headers(self, doc):
+        """Configure custom headers and footers."""
+        # Remove bold from section headings
+        doc.preamble.append(
+            NoEscape(r"\titleformat{\section}{\Large}{\thesection}{1em}{}")
+        )
+        doc.preamble.append(
+            NoEscape(
+                r"\titleformat{\subsection}{\large}"
+                r"{\thesubsection}{1em}{}"
+            )
+        )
+
+        # Set up fancy headers
+        doc.preamble.append(NoEscape(r"\pagestyle{fancy}"))
+        doc.preamble.append(NoEscape(r"\fancyhf{}"))
+
+        # Left page (even): book title in center, page number on left
+        doc.preamble.append(NoEscape(r"\fancyhead[LE]{\thepage}"))
+        doc.preamble.append(NoEscape(r"\fancyhead[CE]{\booktitle}"))
+
+        # Right page (odd): chapter name in center, page number on right
+        doc.preamble.append(NoEscape(r"\fancyhead[RO]{\thepage}"))
+        doc.preamble.append(NoEscape(r"\fancyhead[CO]{\leftmark}"))
+
+        # Remove header rule
+        doc.preamble.append(NoEscape(r"\renewcommand{\headrulewidth}{0pt}"))
 
     def _configure_document(self, doc):
         r"""
@@ -117,6 +147,7 @@ class Book:
         self._add_formatting_packages(doc)
         self._add_font_packages(doc)
         self._add_quote_styling(doc)
+        self._configure_headers(doc)
 
     def _add_front_matter(self, doc):
         """Add title, table of contents, and about sections."""
@@ -192,6 +223,11 @@ class Book:
         )
         doc.preamble.append(Command("title", NoEscape(title_with_count)))
         doc.preamble.append(Command("date", NoEscape(r"\today")))
+
+        # Define book title command for headers
+        doc.preamble.append(
+            NoEscape(f"\\newcommand{{\\booktitle}}{{{self.title}}}")
+        )
 
         self._add_front_matter(doc)
 
