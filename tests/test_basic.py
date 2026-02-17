@@ -1,90 +1,82 @@
 """
-Test the md_to_latex library.
+Integration tests using the example book.
 """
 
 import os
-import sys
+import unittest
 
-from md_to_latex.core import Book, Chapter
-
-# Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+from md_to_latex.core import Book
 
 
-def test_chapter_markdown_parsing():
-    """Test that Chapter correctly parses markdown formatting."""
-    # Create a test markdown file
-    test_dir = os.path.dirname(__file__)
-    test_file = os.path.join(test_dir, "test_chapter.md")
+class TestExampleBook(unittest.TestCase):
+    """Test with the example book in tests/input/example-book."""
 
-    with open(test_file, "w") as f:
-        f.write("# Test Chapter\n\n")
-        f.write("This is **bold** and *italic* text.\n\n")
-        f.write('A quote: "Hello, World!"\n')
+    @classmethod
+    def setUpClass(cls):
+        """Set up test fixtures once for all tests."""
+        cls.example_dir = os.path.join(
+            os.path.dirname(__file__), "input", "example-book"
+        )
+        if os.path.isdir(cls.example_dir):
+            cls.book = Book(cls.example_dir)
+            cls.has_example = True
+        else:
+            cls.has_example = False
 
-    chapter = Chapter(test_file)
-    content = chapter._parse_markdown_to_latex(chapter.content)
+    def test_example_book_exists(self):
+        """Test that example book directory exists."""
+        self.assertTrue(
+            self.has_example,
+            "Example book not found at tests/input/example-book",
+        )
 
-    # Verify bold conversion
-    assert r"\textbf{bold}" in content
+    def test_book_metadata(self):
+        """Test that example book metadata is loaded correctly."""
+        if not self.has_example:
+            self.skipTest("Example book not found")
 
-    # Verify italic conversion
-    assert r"\textit{italic}" in content
+        self.assertEqual(self.book.title, "The Example Novel")
+        self.assertEqual(
+            self.book.subtitle, "A Journey Through Markdown and LaTeX"
+        )
+        self.assertEqual(self.book.author, "Jane Doe")
+        self.assertEqual(self.book.year, "2026")
+        self.assertEqual(self.book.edition, "First Edition")
+        self.assertEqual(self.book.publisher, "Independent Press")
 
-    # Verify quote conversion
-    assert r"\say{Hello, World!}" in content
+    def test_book_parts(self):
+        """Test that example book parts are loaded correctly."""
+        if not self.has_example:
+            self.skipTest("Example book not found")
 
-    # Clean up
-    os.remove(test_file)
+        self.assertEqual(len(self.book.parts), 2)
 
-    print("✓ Chapter markdown parsing test passed")
+    def test_book_chapters(self):
+        """Test that example book chapters are loaded correctly."""
+        if not self.has_example:
+            self.skipTest("Example book not found")
 
+        # Part 1 should have 2 chapters
+        self.assertEqual(len(self.book.parts[0].chapters), 2)
+        # Part 2 should have 1 chapter
+        self.assertEqual(len(self.book.parts[1].chapters), 1)
 
-def test_book_structure():
-    """Test that Book correctly loads structure."""
-    example_dir = os.path.join(
-        os.path.dirname(__file__), "input", "example-book"
-    )
+    def test_book_about_files(self):
+        """Test that about files are loaded correctly."""
+        if not self.has_example:
+            self.skipTest("Example book not found")
 
-    if not os.path.isdir(example_dir):
-        print("⚠ Skipping book structure test (example-book not found)")
-        return
+        self.assertIsNotNone(self.book.about_book)
+        self.assertIsNotNone(self.book.about_author)
 
-    book = Book(example_dir)
+    def test_book_word_count(self):
+        """Test word counting."""
+        if not self.has_example:
+            self.skipTest("Example book not found")
 
-    # Verify book loaded
-    assert book.title == "The Example Novel"
-    assert book.subtitle == "A Journey Through Markdown and LaTeX"
-    assert book.author == "Jane Doe"
-    assert book.year == "2026"
-    assert book.edition == "First Edition"
-    assert book.publisher == "Independent Press"
-
-    # Verify parts loaded
-    assert len(book.parts) == 2
-
-    # Verify chapters loaded
-    assert len(book.parts[0].chapters) == 2  # Part 1 has 2 chapters
-    assert len(book.parts[1].chapters) == 1  # Part 2 has 1 chapter
-
-    # Verify about files loaded
-    assert book.about_book is not None
-    assert book.about_author is not None
-
-    print("✓ Book structure test passed")
-
-
-def main():
-    """Run all tests."""
-    print("Running md_to_latex tests...")
-    print("-" * 60)
-
-    test_chapter_markdown_parsing()
-    test_book_structure()
-
-    print("-" * 60)
-    print("All tests passed!")
+        word_count = self.book._count_words()
+        self.assertGreater(word_count, 0)
 
 
 if __name__ == "__main__":
-    main()
+    unittest.main()
