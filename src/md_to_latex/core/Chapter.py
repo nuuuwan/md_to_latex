@@ -86,9 +86,18 @@ class Chapter:
         - Italic: *text* or _text_ -> \\textit{text}
         - Quotes: "text" -> \\say{text} in maroon color
         - Headings: ## Heading -> \\subsection{Heading}
+        - Section breaks: --- or ... -> \\sectionbreak
         """
         text = self._convert_headings(text)
         text = self._convert_bold_italic(text)
+
+        # Section breaks: --- or ... on their own line
+        text = re.sub(
+            r"^\s*(---|\.\.\.)\s*$",
+            r"\\sectionbreak",
+            text,
+            flags=re.MULTILINE,
+        )
 
         # Escape remaining underscores (those not part of markdown)
         text = re.sub(r"_", r"\\_", text)

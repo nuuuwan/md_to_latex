@@ -90,6 +90,14 @@ class Book:
         # Escape underscores that are not part of markdown italic
         text = re.sub(r"_(?!_)", r"\\_", text)
 
+        # Section breaks: --- or ... on their own line
+        text = re.sub(
+            r"^\s*(---|\.\.\.)\s*$",
+            r"\\sectionbreak",
+            text,
+            flags=re.MULTILINE,
+        )
+
         # Bold: **text**
         text = re.sub(
             r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
@@ -144,6 +152,22 @@ class Book:
             )
         )
 
+    def _add_section_break_command(self, doc):
+        """Add custom section break command."""
+        doc.preamble.append(
+            NoEscape(
+                r"\newcommand{\sectionbreak}{%"
+                "\n"
+                r"  \par\bigskip%"
+                "\n"
+                r"  \centerline{\large\ldots}%"
+                "\n"
+                r"  \bigskip\par%"
+                "\n"
+                r"}%"
+            )
+        )
+
     def _configure_headers(self, doc):
         """Configure custom headers and footers."""
         # Remove bold from section headings
@@ -193,6 +217,7 @@ class Book:
         self._add_formatting_packages(doc)
         self._add_font_packages(doc)
         self._add_quote_styling(doc)
+        self._add_section_break_command(doc)
         self._configure_headers(doc)
 
     def _add_front_matter(self, doc):
