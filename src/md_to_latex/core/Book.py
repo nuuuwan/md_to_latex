@@ -366,7 +366,7 @@ class Book:
         title_parts = [self.title]
         if self.subtitle:
             title_parts.append(f"{{\\large {self.subtitle}}}")
-        title_parts.append(f"{{\\normalsize Word Count: {self.word_count:,}}}")
+        title_parts.append(f"{{\\normalsize {self.word_count:,} words}}")
         title_with_metadata = "\\\\\n\\vspace{0.5em}\n".join(title_parts)
 
         doc.preamble.append(Command("title", NoEscape(title_with_metadata)))
