@@ -106,16 +106,21 @@ class Book:
     def _has_section_breaks(self):
         """Check if any chapter content contains section break markers."""
         pattern = re.compile(r"^\s*(---|\.\.\.)\s*$", re.MULTILINE)
-        for part in self.parts:
-            for chapter in part.chapters:
-                if pattern.search(chapter.content):
-                    return True
-        # Also check about files
-        if self.about_book and pattern.search(self.about_book):
+
+        # Check all chapter content
+        has_breaks_in_chapters = any(
+            pattern.search(chapter.content)
+            for part in self.parts
+            for chapter in part.chapters
+        )
+        if has_breaks_in_chapters:
             return True
-        if self.about_author and pattern.search(self.about_author):
-            return True
-        return False
+
+        # Check about files
+        has_breaks_in_about = (
+            self.about_book and pattern.search(self.about_book)
+        ) or (self.about_author and pattern.search(self.about_author))
+        return bool(has_breaks_in_about)
 
     def _process_markdown(self, text):
         """Convert markdown formatting to LaTeX."""
@@ -254,16 +259,13 @@ class Book:
             self._add_section_break_command(doc)
         self._configure_headers(doc)
 
-    def _add_front_matter(self, doc):
-        """Add title, table of contents, and about sections."""
-        doc.append(NoEscape(r"\maketitle"))
-
-        # Add copyright page
+    def _add_copyright_page(self, doc):
+        """Add copyright page with book metadata."""
         doc.append(NoEscape(r"\thispagestyle{empty}"))
         doc.append(NoEscape(r"\vspace*{\fill}"))
         doc.append(NoEscape(r"\begin{center}"))
 
-        # Add book metadata on copyright page
+        # Add book metadata
         if self.edition:
             doc.append(NoEscape(f"{self.edition}\\\\"))
             doc.append(NoEscape(r"\vspace{0.5em}"))
@@ -292,9 +294,8 @@ class Book:
         doc.append(NoEscape(r"\vspace*{\fill}"))
         doc.append(NoEscape(r"\newpage"))
 
-        doc.append(NoEscape(r"\tableofcontents"))
-        doc.append(NoEscape(r"\newpage"))
-
+    def _add_about_sections(self, doc):
+        """Add about book and about author sections."""
         if self.about_book:
             title = self.about_book_title or "About the Book"
             with doc.create(Section(title, numbering=False)):
@@ -309,6 +310,32 @@ class Book:
                 doc.append(NoEscape(processed_content))
             doc.append(NoEscape(r"\newpage"))
 
+    def _add_front_matter(self, doc):
+        """Add title, table of contents, and about sections."""
+        doc.append(NoEscape(r"\maketitle"))
+        self._add_copyright_page(doc)
+        doc.append(NoEscape(r"\tableofcontents"))
+        doc.append(NoEscape(r"\newpage"))
+        self._add_about_sections(doc)
+
+    def _compile_pdf(self, tex_dir, tex_filename):
+        """Compile LaTeX to PDF using pdflatex."""
+        # Run pdflatex twice to generate table of contents
+        # First pass creates .toc file, second pass uses it
+        for i in range(2):
+            result = subprocess.run(
+                ["pdflatex", "--interaction=nonstopmode", tex_filename],
+                cwd=tex_dir,
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode != 0:
+                print(f"pdflatex stdout: {result.stdout}")
+                print(f"pdflatex stderr: {result.stderr}")
+                raise Exception(
+                    f"pdflatex failed with return code {result.returncode}"
+                )
+
     def _generate_output(self, doc, output_path):
         """Generate PDF or LaTeX file."""
         try:
@@ -318,21 +345,7 @@ class Book:
             tex_dir = os.path.dirname(tex_file)
             tex_filename = os.path.basename(tex_file)
 
-            # Run pdflatex twice to generate table of contents
-            # First pass creates .toc file, second pass uses it
-            for i in range(2):
-                result = subprocess.run(
-                    ["pdflatex", "--interaction=nonstopmode", tex_filename],
-                    cwd=tex_dir,
-                    capture_output=True,
-                    text=True,
-                )
-                if result.returncode != 0:
-                    print(f"pdflatex stdout: {result.stdout}")
-                    print(f"pdflatex stderr: {result.stderr}")
-                    raise Exception(
-                        f"pdflatex failed with return code {result.returncode}"
-                    )
+            self._compile_pdf(tex_dir, tex_filename)
 
             pdf_path = f"{output_path}.pdf"
             print(f"PDF generated successfully: {pdf_path}")
@@ -347,6 +360,34 @@ class Book:
             doc.generate_tex(output_path)
             print(f"LaTeX file saved: {output_path}.tex")
             return f"{output_path}.tex"
+
+    def _build_title(self):
+        """Build title string with metadata (subtitle and word count)."""
+        title_parts = [self.title]
+        if self.subtitle:
+            title_parts.append(f"{{\\large {self.subtitle}}}")
+        title_parts.append(f"{{\\normalsize {self.word_count:,} words}}")
+        return "\\\\\n\\vspace{0.5em}\n".join(title_parts)
+
+    def _setup_document_metadata(self, doc):
+        """Set up document title, author, date, and custom commands."""
+        title_with_metadata = self._build_title()
+        doc.preamble.append(Command("title", NoEscape(title_with_metadata)))
+
+        # Add author if specified in metadata
+        if self.author:
+            doc.preamble.append(Command("author", self.author))
+
+        # Add date (year from metadata or today's date)
+        if self.year:
+            doc.preamble.append(Command("date", self.year))
+        else:
+            doc.preamble.append(Command("date", NoEscape(r"\today")))
+
+        # Define book title command for headers
+        doc.preamble.append(
+            NoEscape(f"\\newcommand{{\\booktitle}}{{{self.title}}}")
+        )
 
     def toLatex(self):
         """
@@ -367,30 +408,7 @@ class Book:
         # Calculate word count
         self.word_count = self._count_words()
 
-        # Build title with metadata
-        title_parts = [self.title]
-        if self.subtitle:
-            title_parts.append(f"{{\\large {self.subtitle}}}")
-        title_parts.append(f"{{\\normalsize {self.word_count:,} words}}")
-        title_with_metadata = "\\\\\n\\vspace{0.5em}\n".join(title_parts)
-
-        doc.preamble.append(Command("title", NoEscape(title_with_metadata)))
-
-        # Add author if specified in metadata
-        if self.author:
-            doc.preamble.append(Command("author", self.author))
-
-        # Add date (year from metadata or today's date)
-        if self.year:
-            doc.preamble.append(Command("date", self.year))
-        else:
-            doc.preamble.append(Command("date", NoEscape(r"\today")))
-
-        # Define book title command for headers
-        doc.preamble.append(
-            NoEscape(f"\\newcommand{{\\booktitle}}{{{self.title}}}")
-        )
-
+        self._setup_document_metadata(doc)
         self._add_front_matter(doc)
 
         for part in self.parts:
