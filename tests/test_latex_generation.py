@@ -231,5 +231,76 @@ class TestBookLatexGeneration(unittest.TestCase):
             self.assertIn(r"\maketitle", content)
 
 
+class TestExampleBookLatexGeneration(unittest.TestCase):
+    """Test full LaTeX generation with the example book."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up test fixtures once for all tests."""
+        cls.example_dir = os.path.join(
+            os.path.dirname(__file__), "input", "example-book"
+        )
+        cls.has_example = os.path.isdir(cls.example_dir)
+
+    def test_generate_example_book_latex(self):
+        """Test generating LaTeX and PDF from the example book."""
+        if not self.has_example:
+            self.skipTest("Example book not found")
+
+        book = Book(self.example_dir)
+
+        # Generate LaTeX and PDF using the full pipeline
+        output_file = book.toLatex()
+
+        # Verify output directory exists
+        self.assertTrue(
+            os.path.exists(book.output_dir),
+            f"Output directory not found: {book.output_dir}",
+        )
+
+        # Verify output file was created
+        self.assertTrue(
+            os.path.exists(output_file),
+            f"Output file not found: {output_file}",
+        )
+
+        # Get the base name for the files
+        file_name = book._to_kebab_case(book.title)
+        tex_file = os.path.join(book.output_dir, f"{file_name}.tex")
+        pdf_file = os.path.join(book.output_dir, f"{file_name}.pdf")
+
+        # Verify .tex file was created
+        self.assertTrue(
+            os.path.exists(tex_file), f"LaTeX file not found at {tex_file}"
+        )
+
+        # Verify .tex file has expected content
+        with open(tex_file, "r", encoding="utf-8") as f:
+            content = f.read()
+            self.assertIn("The Example Novel", content)
+            self.assertIn("Jane Doe", content)
+            self.assertIn(r"\maketitle", content)
+            self.assertIn(r"\tableofcontents", content)
+            self.assertIn(r"\part{Foundations}", content)
+            self.assertIn(r"\part{Advanced}", content)
+
+        # Verify .tex file size is reasonable (not empty)
+        file_size = os.path.getsize(tex_file)
+        self.assertGreater(
+            file_size, 1000, f"LaTeX file too small: {file_size} bytes"
+        )
+
+        # If PDF generation succeeded, verify PDF exists and has content
+        if output_file.endswith(".pdf"):
+            self.assertTrue(
+                os.path.exists(pdf_file), f"PDF file not found at {pdf_file}"
+            )
+            # Verify PDF file size is reasonable (not empty)
+            pdf_size = os.path.getsize(pdf_file)
+            self.assertGreater(
+                pdf_size, 5000, f"PDF file too small: {pdf_size} bytes"
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
