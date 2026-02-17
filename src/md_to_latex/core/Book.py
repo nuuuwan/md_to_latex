@@ -143,7 +143,9 @@ class Book:
         )
 
         # Bold: **text**
-        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
+        text = re.sub(
+            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
+        )
 
         # Italic: *text*
         text = re.sub(
@@ -189,7 +191,9 @@ class Book:
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
-            NoEscape(r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}")
+            NoEscape(
+                r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}"
+            )
         )
 
     def _add_section_break_command(self, doc):
@@ -216,7 +220,8 @@ class Book:
         )
         doc.preamble.append(
             NoEscape(
-                r"\titleformat{\subsection}{\large}" r"{\thesubsection}{1em}{}"
+                r"\titleformat{\subsection}{\large}"
+                r"{\thesubsection}{1em}{}"
             )
         )
 
