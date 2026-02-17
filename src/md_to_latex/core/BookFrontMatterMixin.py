@@ -8,7 +8,7 @@ class BookFrontMatterMixin:
         """Build title string with metadata (subtitle and word count)."""
         title_parts = [self.title]
         if self.subtitle:
-            title_parts.append(f"{{\\large {self.subtitle}}}")
+            title_parts.append(f"{{\\small {self.subtitle}}}")
         title_parts.append(f"{{\\normalsize {self.word_count:,} words}}")
         return "\\\\\n\\vspace{0.5em}\n".join(title_parts)
 
