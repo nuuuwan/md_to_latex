@@ -77,6 +77,22 @@ class BookLatexConfigMixin:
         # Remove header rule
         doc.preamble.append(NoEscape(r"\renewcommand{\headrulewidth}{0pt}"))
 
+    def _add_hyperref_package(self, doc):
+        """Add hyperref package for clickable table of contents."""
+        doc.preamble.append(
+            Package(
+                "hyperref",
+                options=[
+                    "colorlinks=true",
+                    "linkcolor=black",
+                    "urlcolor=blue",
+                    "bookmarks=true",
+                    "bookmarksopen=true",
+                    "pdfstartview=FitH",
+                ],
+            )
+        )
+
     def _configure_document(self, doc):
         """Configure LaTeX document with book formatting."""
         doc.documentclass = Command(
@@ -90,3 +106,4 @@ class BookLatexConfigMixin:
         if self._has_section_breaks():
             self._add_section_break_command(doc)
         self._configure_headers(doc)
+        self._add_hyperref_package(doc)

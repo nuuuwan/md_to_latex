@@ -57,7 +57,9 @@ class Chapter:
         )
 
         # Bold: **text** or __text__
-        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
+        text = re.sub(
+            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
+        )
         text = re.sub(r"__(.+?)__", r"\\textbf{\1}", text, flags=re.DOTALL)
 
         # Italic: *text* or _text_

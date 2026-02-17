@@ -127,7 +127,7 @@ class TestMarkdownParsing(unittest.TestCase):
 
             chapter = Chapter(self.test_file)
             latex = chapter._parse_markdown_to_latex(chapter.content)
-            self.assertIn(r"\sectionbreak", latex)
+            self.assertIn(r"\scenebreak", latex)
 
     def test_underscore_escape(self):
         """Test underscore escaping."""

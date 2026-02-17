@@ -19,7 +19,9 @@ class BookMarkdownMixin:
         )
 
         # Bold: **text**
-        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
+        text = re.sub(
+            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
+        )
 
         # Italic: *text*
         text = re.sub(
