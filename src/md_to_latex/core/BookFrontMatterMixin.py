@@ -54,16 +54,6 @@ class BookFrontMatterMixin:
             doc.append(NoEscape(r"\\"))
             doc.append(NoEscape(r"\vspace{1em}"))
 
-        doc.append(NoEscape(r"\textbf{Copyright Notice}\\"))
-        doc.append(NoEscape(r"\vspace{1em}"))
-        doc.append(
-            NoEscape(
-                r"All rights reserved. No part of this publication may be "
-                r"reproduced, distributed, or transmitted in any form or by "
-                r"any means without the prior written "
-                r"permission of the author."
-            )
-        )
         doc.append(NoEscape(r"\end{center}"))
         doc.append(NoEscape(r"\vspace*{\fill}"))
         doc.append(NoEscape(r"\newpage"))
