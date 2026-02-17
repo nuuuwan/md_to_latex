@@ -48,10 +48,10 @@ class BookFrontMatterMixin:
             doc.append(NoEscape(r"\vspace{0.5em}"))
 
         if self.year:
-            doc.append(NoEscape(f"Copyright \\copyright\\ {self.year}"))
+            copyright_line = f"Copyright \\copyright\\ {self.year}"
             if self.author:
-                doc.append(NoEscape(f" by {self.author}"))
-            doc.append(NoEscape(r"\\"))
+                copyright_line += f" by {self.author}"
+            doc.append(NoEscape(copyright_line + r"\\"))
             doc.append(NoEscape(r"\vspace{1em}"))
 
         doc.append(NoEscape(r"\end{center}"))
@@ -65,19 +65,16 @@ class BookFrontMatterMixin:
             with doc.create(Section(title, numbering=False)):
                 processed_content = self._process_markdown(self.about_book)
                 doc.append(NoEscape(processed_content))
-            doc.append(NoEscape(r"\newpage"))
 
         if self.about_author:
             title = self.about_author_title or "About the Author"
             with doc.create(Section(title, numbering=False)):
                 processed_content = self._process_markdown(self.about_author)
                 doc.append(NoEscape(processed_content))
-            doc.append(NoEscape(r"\newpage"))
 
     def _add_front_matter(self, doc):
         """Add title, table of contents, and about sections."""
         doc.append(NoEscape(r"\maketitle"))
         self._add_copyright_page(doc)
         doc.append(NoEscape(r"\tableofcontents"))
-        doc.append(NoEscape(r"\newpage"))
         self._add_about_sections(doc)

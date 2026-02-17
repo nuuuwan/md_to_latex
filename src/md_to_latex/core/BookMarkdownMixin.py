@@ -13,15 +13,13 @@ class BookMarkdownMixin:
         # Section breaks: --- or ... on their own line
         text = re.sub(
             r"^\s*(---|\.\.\.)\s*$",
-            r"\\sectionbreak",
+            r"\n\n\\sectionbreak\n\n",
             text,
             flags=re.MULTILINE,
         )
 
         # Bold: **text**
-        text = re.sub(
-            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
-        )
+        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
 
         # Italic: *text*
         text = re.sub(

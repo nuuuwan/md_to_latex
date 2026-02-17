@@ -57,9 +57,7 @@ class Chapter:
         )
 
         # Bold: **text** or __text__
-        text = re.sub(
-            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
-        )
+        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
         text = re.sub(r"__(.+?)__", r"\\textbf{\1}", text, flags=re.DOTALL)
 
         # Italic: *text* or _text_
@@ -94,7 +92,7 @@ class Chapter:
         # Section breaks: --- or ... on their own line
         text = re.sub(
             r"^\s*(---|\.\.\.)\s*$",
-            r"\\sectionbreak",
+            r"\n\n\\sectionbreak\n\n",
             text,
             flags=re.MULTILINE,
         )
