@@ -13,7 +13,7 @@ class BookMarkdownMixin:
         # Section breaks: --- or ... on their own line
         text = re.sub(
             r"^\s*(---|\.\.\.)\s*$",
-            r"\n\n\\sectionbreak\n\n",
+            r"\n\n\\scenebreak\n\n",
             text,
             flags=re.MULTILINE,
         )

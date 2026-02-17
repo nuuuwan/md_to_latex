@@ -38,7 +38,7 @@ class BookLatexConfigMixin:
         """Add custom section break command."""
         doc.preamble.append(
             NoEscape(
-                r"\newcommand{\sectionbreak}{%"
+                r"\newcommand{\scenebreak}{%"
                 "\n"
                 r"  \par\bigskip%"
                 "\n"

@@ -40,7 +40,7 @@ class TestExampleBook(unittest.TestCase):
             self.book.subtitle, "A Journey Through Markdown and LaTeX"
         )
         self.assertEqual(self.book.author, "Jane Doe")
-        self.assertEqual(self.book.year, "2026")
+        self.assertEqual(self.book.year, "2026-02-17")
         self.assertEqual(self.book.edition, "First Edition")
         self.assertEqual(self.book.publisher, "Independent Press")
 

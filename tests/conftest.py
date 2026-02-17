@@ -16,7 +16,7 @@ def _create_metadata_file(book_dir):
         "title": "The Example Novel",
         "subtitle": "A Journey Through Markdown and LaTeX",
         "author": "Jane Doe",
-        "year": "2026",
+        "year": "2026-02-17",
         "edition": "First Edition",
         "publisher": "Independent Press",
     }
@@ -28,7 +28,7 @@ def _create_metadata_file(book_dir):
 def _create_about_files(book_dir):
     """Create about-the-book.md and about-the-author.md files."""
     about_book_content = (
-        "# Example Book\n\nThis is an **example book** to demonstrate "
+        "# About The Book\n\nThis is an **example book** to demonstrate "
         "the *md_to_latex* library.\n"
     )
     about_book_path = os.path.join(book_dir, "about-the-book.md")

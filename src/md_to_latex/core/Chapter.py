@@ -84,7 +84,7 @@ class Chapter:
         - Italic: *text* or _text_ -> \\textit{text}
         - Quotes: "text" -> \\say{text} in maroon color
         - Headings: ## Heading -> \\subsection{Heading}
-        - Section breaks: --- or ... -> \\sectionbreak
+        - Section breaks: --- or ... -> \\scenebreak
         """
         text = self._convert_headings(text)
         text = self._convert_bold_italic(text)
@@ -92,7 +92,7 @@ class Chapter:
         # Section breaks: --- or ... on their own line
         text = re.sub(
             r"^\s*(---|\.\.\.)\s*$",
-            r"\n\n\\sectionbreak\n\n",
+            r"\n\n\\scenebreak\n\n",
             text,
             flags=re.MULTILINE,
         )
