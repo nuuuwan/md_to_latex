@@ -70,4 +70,3 @@ class Book(
 
         output_path = os.path.join(self.output_dir, self.title)
         return self._generate_output(doc, output_path)
-

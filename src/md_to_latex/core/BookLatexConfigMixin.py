@@ -31,9 +31,7 @@ class BookLatexConfigMixin:
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
-            NoEscape(
-                r"\renewcommand{\say}[1]{\textcolor{maroon}{``#1''}}"
-            )
+            NoEscape(r"\renewcommand{\say}[1]{\textcolor{maroon}{``#1''}}")
         )
 
     def _add_section_break_command(self, doc):
