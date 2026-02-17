@@ -1,4 +1,5 @@
 import os
+import re
 
 from pylatex import Document
 
@@ -17,6 +18,21 @@ class Book(
     BookOutputMixin,
 ):
     """Represents a complete book with parts, chapters, and metadata."""
+
+    @staticmethod
+    def _to_kebab_case(text):
+        """Convert text to kebab-case for use in file names."""
+        # Replace spaces and underscores with hyphens
+        text = re.sub(r"[\s_]+", "-", text)
+        # Remove any characters that aren't alphanumeric or hyphens
+        text = re.sub(r"[^a-zA-Z0-9\-]", "", text)
+        # Convert to lowercase
+        text = text.lower()
+        # Remove multiple consecutive hyphens
+        text = re.sub(r"-+", "-", text)
+        # Remove leading/trailing hyphens
+        text = text.strip("-")
+        return text
 
     def __init__(self, book_dir):
         """
@@ -68,5 +84,7 @@ class Book(
         for part in self.parts:
             part.to_latex(doc)
 
-        output_path = os.path.join(self.output_dir, self.title)
+        # Use kebab-case for file name
+        file_name = self._to_kebab_case(self.title)
+        output_path = os.path.join(self.output_dir, file_name)
         return self._generate_output(doc, output_path)
