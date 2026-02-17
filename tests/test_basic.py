@@ -53,7 +53,12 @@ def test_book_structure():
     book = Book(example_dir)
 
     # Verify book loaded
-    assert book.title == "example-book"
+    assert book.title == "The Example Novel"
+    assert book.subtitle == "A Journey Through Markdown and LaTeX"
+    assert book.author == "Jane Doe"
+    assert book.year == "2026"
+    assert book.edition == "First Edition"
+    assert book.publisher == "Independent Press"
 
     # Verify parts loaded
     assert len(book.parts) == 2

@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import subprocess
@@ -11,6 +12,18 @@ from md_to_latex.core.Part import Part
 class Book:
     """Represents a complete book with parts, chapters, and metadata."""
 
+    def _load_metadata(self):
+        """Load metadata from metadata.json file."""
+        metadata_path = os.path.join(self.book_dir, "metadata.json")
+        if os.path.isfile(metadata_path):
+            try:
+                with open(metadata_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Warning: Could not load metadata.json: {e}")
+                return {}
+        return {}
+
     def __init__(self, book_dir):
         """
         Initialize a Book from a directory.
@@ -19,7 +32,13 @@ class Book:
             book_dir: Path to the book directory
         """
         self.book_dir = book_dir
-        self.title = os.path.basename(book_dir)
+        self.metadata = self._load_metadata()
+        self.title = self.metadata.get("title", os.path.basename(book_dir))
+        self.subtitle = self.metadata.get("subtitle")
+        self.author = self.metadata.get("author")
+        self.year = self.metadata.get("year")
+        self.edition = self.metadata.get("edition")
+        self.publisher = self.metadata.get("publisher")
         self.parts = self._load_parts()
         self.about_author_title, self.about_author = self._load_about_file(
             "about-the-author.md"
@@ -223,6 +242,23 @@ class Book:
         doc.append(NoEscape(r"\thispagestyle{empty}"))
         doc.append(NoEscape(r"\vspace*{\fill}"))
         doc.append(NoEscape(r"\begin{center}"))
+
+        # Add book metadata on copyright page
+        if self.edition:
+            doc.append(NoEscape(f"{self.edition}\\\\"))
+            doc.append(NoEscape(r"\vspace{0.5em}"))
+
+        if self.publisher:
+            doc.append(NoEscape(f"Published by {self.publisher}\\\\"))
+            doc.append(NoEscape(r"\vspace{0.5em}"))
+
+        if self.year:
+            doc.append(NoEscape(f"Copyright \\copyright\\ {self.year}"))
+            if self.author:
+                doc.append(NoEscape(f" by {self.author}"))
+            doc.append(NoEscape(r"\\"))
+            doc.append(NoEscape(r"\vspace{1em}"))
+
         doc.append(NoEscape(r"\textbf{Copyright Notice}\\"))
         doc.append(NoEscape(r"\vspace{1em}"))
         doc.append(
@@ -311,13 +347,24 @@ class Book:
         # Calculate word count
         self.word_count = self._count_words()
 
-        # Add title with word count
-        title_with_count = (
-            f"{self.title}\\\\\\vspace{{0.5em}}"
-            f"{{\\large Word Count: {self.word_count:,}}}"
-        )
-        doc.preamble.append(Command("title", NoEscape(title_with_count)))
-        doc.preamble.append(Command("date", NoEscape(r"\today")))
+        # Build title with metadata
+        title_parts = [self.title]
+        if self.subtitle:
+            title_parts.append(f"{{\\large {self.subtitle}}}")
+        title_parts.append(f"{{\\normalsize Word Count: {self.word_count:,}}}")
+        title_with_metadata = "\\\\\n\\vspace{0.5em}\n".join(title_parts)
+
+        doc.preamble.append(Command("title", NoEscape(title_with_metadata)))
+
+        # Add author if specified in metadata
+        if self.author:
+            doc.preamble.append(Command("author", self.author))
+
+        # Add date (year from metadata or today's date)
+        if self.year:
+            doc.preamble.append(Command("date", self.year))
+        else:
+            doc.preamble.append(Command("date", NoEscape(r"\today")))
 
         # Define book title command for headers
         doc.preamble.append(

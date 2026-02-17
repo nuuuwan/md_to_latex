@@ -45,8 +45,8 @@ The generated PDF follows professional book formatting standards:
   - Left pages (even): Page number on left, book title in center of header
   - Right pages (odd): Chapter name in center of header, page number on right
 - **Table of Contents**: Automatically generated
-- **Title Page**: Includes book title and total word count
-- **Copyright Page**: Standard copyright notice on page 2
+- **Title Page**: Includes book title, subtitle (if provided), author, and total word count
+- **Copyright Page**: Includes copyright notice, edition, publisher, and publication year (from metadata.json)
 - **Chapter Breaks**: Each chapter ends with a page break
 - **Section Headings**: Non-bold formatting for cleaner appearance
 
@@ -54,6 +54,9 @@ The generated PDF follows professional book formatting standards:
 
 Your book directory should have the following structure:
 
+- **metadata.json**: Book metadata file (required)
+  - Contains book title, subtitle, author, year, edition, and publisher information
+  - See example format below
 - **Parts**: Located in a `parts/` folder
   - Each part is in a subfolder named `part-<n>-<part_name>`
   - Chapter files for each part are stored within the respective part directory
@@ -62,6 +65,23 @@ Your book directory should have the following structure:
   - `about-the-author.md` - Information about the author
   - `about-the-book.md` - Book description and details
   - Both files should be in the root directory
+
+### metadata.json Format
+
+The `metadata.json` file should be placed in the root of your book directory with the following structure:
+
+```json
+{
+  "title": "Your Book Title",
+  "subtitle": "Optional Subtitle",
+  "author": "Author Name",
+  "year": "2026",
+  "edition": "First Edition",
+  "publisher": "Publisher Name"
+}
+```
+
+All fields except `title` are optional. If `metadata.json` is not present, the directory name will be used as the title.
 
 ### Chapter File Format
 
