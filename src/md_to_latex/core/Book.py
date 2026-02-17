@@ -103,6 +103,20 @@ class Book:
                 word_count += len(chapter.content.split())
         return word_count
 
+    def _has_section_breaks(self):
+        """Check if any chapter content contains section break markers."""
+        pattern = re.compile(r"^\s*(---|\.\.\.)\s*$", re.MULTILINE)
+        for part in self.parts:
+            for chapter in part.chapters:
+                if pattern.search(chapter.content):
+                    return True
+        # Also check about files
+        if self.about_book and pattern.search(self.about_book):
+            return True
+        if self.about_author and pattern.search(self.about_author):
+            return True
+        return False
+
     def _process_markdown(self, text):
         """Convert markdown formatting to LaTeX."""
         # First escape LaTeX special characters (except those used in markdown)
@@ -231,7 +245,8 @@ class Book:
         self._add_formatting_packages(doc)
         self._add_font_packages(doc)
         self._add_quote_styling(doc)
-        self._add_section_break_command(doc)
+        if self._has_section_breaks():
+            self._add_section_break_command(doc)
         self._configure_headers(doc)
 
     def _add_front_matter(self, doc):
