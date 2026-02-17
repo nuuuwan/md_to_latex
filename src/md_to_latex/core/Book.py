@@ -5,8 +5,11 @@ import subprocess
 import sys
 
 from pylatex import Command, Document, NoEscape, Package, Section
+from rich.console import Console
 
 from md_to_latex.core.Part import Part
+
+console = Console()
 
 
 class Book:
@@ -20,7 +23,10 @@ class Book:
                 with open(metadata_path, "r", encoding="utf-8") as f:
                     return json.load(f)
             except (json.JSONDecodeError, IOError) as e:
-                print(f"Warning: Could not load metadata.json: {e}")
+                console.print(
+                    f"[yellow]⚠ Warning:[/yellow] "
+                    f"Could not load metadata.json: {e}"
+                )
                 return {}
         return {}
 
@@ -137,9 +143,7 @@ class Book:
         )
 
         # Bold: **text**
-        text = re.sub(
-            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
-        )
+        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
 
         # Italic: *text*
         text = re.sub(
@@ -185,9 +189,7 @@ class Book:
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
-            NoEscape(
-                r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}"
-            )
+            NoEscape(r"\renewcommand{\say}[1]" r"{\textcolor{maroon}{``#1''}}")
         )
 
     def _add_section_break_command(self, doc):
@@ -214,8 +216,7 @@ class Book:
         )
         doc.preamble.append(
             NoEscape(
-                r"\titleformat{\subsection}{\large}"
-                r"{\thesubsection}{1em}{}"
+                r"\titleformat{\subsection}{\large}" r"{\thesubsection}{1em}{}"
             )
         )
 
@@ -330,8 +331,9 @@ class Book:
                 text=True,
             )
             if result.returncode != 0:
-                print(f"pdflatex stdout: {result.stdout}")
-                print(f"pdflatex stderr: {result.stderr}")
+                console.print("[red]✗ pdflatex failed[/red]")
+                console.print("[dim]stdout:[/dim]", result.stdout)
+                console.print("[dim]stderr:[/dim]", result.stderr)
                 raise Exception(
                     f"pdflatex failed with return code {result.returncode}"
                 )
@@ -348,7 +350,10 @@ class Book:
             self._compile_pdf(tex_dir, tex_filename)
 
             pdf_path = f"{output_path}.pdf"
-            print(f"PDF generated successfully: {pdf_path}")
+            console.print(
+                f"[green]✓ PDF generated successfully:[/green] "
+                f"[bold]{pdf_path}[/bold]"
+            )
 
             # Open the PDF on macOS
             if sys.platform == "darwin":
@@ -356,9 +361,12 @@ class Book:
 
             return pdf_path
         except Exception as e:
-            print(f"Error generating PDF: {e}")
+            console.print(f"[red]✗ Error generating PDF:[/red] {e}")
             doc.generate_tex(output_path)
-            print(f"LaTeX file saved: {output_path}.tex")
+            console.print(
+                f"[yellow]→ LaTeX file saved:[/yellow] "
+                f"[bold]{output_path}.tex[/bold]"
+            )
             return f"{output_path}.tex"
 
     def _build_title(self):
