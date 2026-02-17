@@ -10,13 +10,100 @@ import tempfile
 import pytest
 
 
+def _create_metadata_file(book_dir):
+    """Create metadata.json file for test book."""
+    metadata = {
+        "title": "The Example Novel",
+        "subtitle": "A Journey Through Markdown and LaTeX",
+        "author": "Jane Doe",
+        "year": "2026",
+        "edition": "First Edition",
+        "publisher": "Independent Press",
+    }
+    metadata_path = os.path.join(book_dir, "metadata.json")
+    with open(metadata_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+
+def _create_about_files(book_dir):
+    """Create about-the-book.md and about-the-author.md files."""
+    about_book_content = (
+        "# Example Book\n\nThis is an **example book** to demonstrate "
+        "the *md_to_latex* library.\n"
+    )
+    about_book_path = os.path.join(book_dir, "about-the-book.md")
+    with open(about_book_path, "w", encoding="utf-8") as f:
+        f.write(about_book_content)
+
+    about_author_content = (
+        "# About the Author\n\n**John Doe** is an *author* and "
+        '"software engineer" with a passion for writing.\n'
+    )
+    about_author_path = os.path.join(book_dir, "about-the-author.md")
+    with open(about_author_path, "w", encoding="utf-8") as f:
+        f.write(about_author_content)
+
+
+def _create_part1_chapters(part1_dir):
+    """Create chapters for Part 1: Foundations."""
+    chapter1_content = (
+        "# Introduction to Writing\n\n"
+        "This chapter introduces the **art of writing**. "
+        "Writing is *fundamental* to human communication.\n\n"
+        "...\n\n"
+        'As the famous author said, "Writing is thinking on paper."\n\n'
+        "## Key Concepts\n\n"
+        "Writing involves both **creativity** and *discipline*. "
+        'The best writers understand that "practice makes perfect" '
+        "and dedicate themselves to their craft.\n"
+    )
+    ch1_path = os.path.join(part1_dir, "chapter-1-introduction.md")
+    with open(ch1_path, "w", encoding="utf-8") as f:
+        f.write(chapter1_content)
+
+    chapter2_content = (
+        "# The Writing Process\n\n"
+        "The **writing process** involves several *key stages*:\n\n"
+        "1. **Planning**: Think about what you want to say\n"
+        "2. **Drafting**: Write your first draft\n"
+        "3. **Revising**: Improve your work\n"
+        "4. **Editing**: Polish the details\n\n"
+        'As Hemingway said, "The first draft of anything is garbage." '
+        "This reminds us to embrace **revision** as a *crucial* part "
+        "of the process.\n"
+    )
+    ch2_path = os.path.join(part1_dir, "chapter-2-process.md")
+    with open(ch2_path, "w", encoding="utf-8") as f:
+        f.write(chapter2_content)
+
+
+def _create_part2_chapters(part2_dir):
+    """Create chapters for Part 2: Advanced."""
+    chapter3_content = (
+        "# Advanced Techniques\n\n"
+        "**Advanced writers** develop their own *unique voice*. "
+        "This chapter explores sophisticated techniques.\n\n"
+        "## Finding Your Voice\n\n"
+        "Your voice should be **authentic** and *distinctive*. "
+        'As writers often say, "Write what you know" and let your '
+        "personality shine through.\n\n"
+        "## Style and Tone\n\n"
+        "Mastering **style** and *tone* takes practice. "
+        'Remember that "less is more" when it comes to effective '
+        "writing.\n"
+    )
+    ch3_path = os.path.join(part2_dir, "chapter-3-techniques.md")
+    with open(ch3_path, "w", encoding="utf-8") as f:
+        f.write(chapter3_content)
+
+
 @pytest.fixture(scope="session")
 def example_book_dir():
     """
     Create an example book directory structure for testing.
 
     This fixture creates a temporary directory with the full structure
-    of an example book, including metadata, parts, chapters, and about files.
+    of an example book, including metadata, parts, chapters, and files.
     """
     # Create temporary directory
     temp_dir = tempfile.mkdtemp(prefix="md_to_latex_test_")
@@ -24,41 +111,8 @@ def example_book_dir():
     os.makedirs(book_dir)
 
     try:
-        # Create metadata.json
-        metadata = {
-            "title": "The Example Novel",
-            "subtitle": "A Journey Through Markdown and LaTeX",
-            "author": "Jane Doe",
-            "year": "2026",
-            "edition": "First Edition",
-            "publisher": "Independent Press",
-        }
-        with open(
-            os.path.join(book_dir, "metadata.json"), "w", encoding="utf-8"
-        ) as f:
-            json.dump(metadata, f, indent=2)
-
-        # Create about-the-book.md
-        about_book_content = """# Example Book
-
-This is an **example book** to demonstrate the *md_to_latex* library.
-"""
-        with open(
-            os.path.join(book_dir, "about-the-book.md"), "w", encoding="utf-8"
-        ) as f:
-            f.write(about_book_content)
-
-        # Create about-the-author.md
-        about_author_content = """# About the Author
-
-**John Doe** is an *author* and "software engineer" with a passion for writing.
-"""
-        with open(
-            os.path.join(book_dir, "about-the-author.md"),
-            "w",
-            encoding="utf-8",
-        ) as f:
-            f.write(about_author_content)
+        _create_metadata_file(book_dir)
+        _create_about_files(book_dir)
 
         # Create parts directory structure
         parts_dir = os.path.join(book_dir, "parts")
@@ -67,66 +121,12 @@ This is an **example book** to demonstrate the *md_to_latex* library.
         # Part 1: Foundations
         part1_dir = os.path.join(parts_dir, "part-1-foundations")
         os.makedirs(part1_dir)
-
-        chapter1_content = """# Introduction to Writing
-
-This chapter introduces the **art of writing**. Writing is *fundamental* to human communication.
-
-...
-
-As the famous author said, "Writing is thinking on paper."
-
-## Key Concepts
-
-Writing involves both **creativity** and *discipline*. The best writers understand that "practice makes perfect" and dedicate themselves to their craft.
-"""
-        with open(
-            os.path.join(part1_dir, "chapter-1-introduction.md"),
-            "w",
-            encoding="utf-8",
-        ) as f:
-            f.write(chapter1_content)
-
-        chapter2_content = """# The Writing Process
-
-The **writing process** involves several *key stages*:
-
-1. **Planning**: Think about what you want to say
-2. **Drafting**: Write your first draft
-3. **Revising**: Improve your work
-4. **Editing**: Polish the details
-
-As Hemingway said, "The first draft of anything is garbage." This reminds us to embrace **revision** as a *crucial* part of the process.
-"""
-        with open(
-            os.path.join(part1_dir, "chapter-2-process.md"),
-            "w",
-            encoding="utf-8",
-        ) as f:
-            f.write(chapter2_content)
+        _create_part1_chapters(part1_dir)
 
         # Part 2: Advanced
         part2_dir = os.path.join(parts_dir, "part-2-advanced")
         os.makedirs(part2_dir)
-
-        chapter3_content = """# Advanced Techniques
-
-**Advanced writers** develop their own *unique voice*. This chapter explores sophisticated techniques.
-
-## Finding Your Voice
-
-Your voice should be **authentic** and *distinctive*. As writers often say, "Write what you know" and let your personality shine through.
-
-## Style and Tone
-
-Mastering **style** and *tone* takes practice. Remember that "less is more" when it comes to effective writing.
-"""
-        with open(
-            os.path.join(part2_dir, "chapter-3-techniques.md"),
-            "w",
-            encoding="utf-8",
-        ) as f:
-            f.write(chapter3_content)
+        _create_part2_chapters(part2_dir)
 
         yield book_dir
 

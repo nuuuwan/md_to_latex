@@ -98,9 +98,8 @@ class TestBookLatexGeneration(unittest.TestCase):
                 os.rmdir(os.path.join(root, name))
         os.rmdir(self.temp_dir)
 
-    def test_book_latex_document_creation(self):
-        """Test that book creates a valid LaTeX document."""
-        # Create minimal book structure
+    def _create_minimal_book(self, with_chapter=True):
+        """Helper to create a minimal book structure for testing."""
         metadata = {
             "title": "Test Book",
             "author": "Test Author",
@@ -113,16 +112,18 @@ class TestBookLatexGeneration(unittest.TestCase):
         ) as f:
             json.dump(metadata, f)
 
-        parts_dir = os.path.join(self.temp_dir, "parts")
-        os.makedirs(parts_dir)
+        if with_chapter:
+            parts_dir = os.path.join(self.temp_dir, "parts")
+            os.makedirs(parts_dir)
+            part_dir = os.path.join(parts_dir, "part-1-test")
+            os.makedirs(part_dir)
+            chapter_file = os.path.join(part_dir, "chapter-1.md")
+            with open(chapter_file, "w", encoding="utf-8") as f:
+                f.write("# Test Chapter\n\nTest content.")
 
-        part_dir = os.path.join(parts_dir, "part-1-test")
-        os.makedirs(part_dir)
-
-        chapter_file = os.path.join(part_dir, "chapter-1.md")
-        with open(chapter_file, "w", encoding="utf-8") as f:
-            f.write("# Test Chapter\n\nTest content.")
-
+    def test_book_latex_document_creation(self):
+        """Test that book creates a valid LaTeX document."""
+        self._create_minimal_book()
         book = Book(self.temp_dir)
 
         # Create document
@@ -184,25 +185,7 @@ class TestBookLatexGeneration(unittest.TestCase):
 
     def test_book_tex_file_generation(self):
         """Test that book generates .tex file."""
-        # Create minimal book structure
-        metadata = {"title": "Test Book"}
-        with open(
-            os.path.join(self.temp_dir, "metadata.json"),
-            "w",
-            encoding="utf-8",
-        ) as f:
-            json.dump(metadata, f)
-
-        parts_dir = os.path.join(self.temp_dir, "parts")
-        os.makedirs(parts_dir)
-
-        part_dir = os.path.join(parts_dir, "part-1-test")
-        os.makedirs(part_dir)
-
-        chapter_file = os.path.join(part_dir, "chapter-1.md")
-        with open(chapter_file, "w", encoding="utf-8") as f:
-            f.write("# Test Chapter\n\nTest content.")
-
+        self._create_minimal_book()
         book = Book(self.temp_dir)
         os.makedirs(book.output_dir, exist_ok=True)
 
@@ -220,11 +203,10 @@ class TestBookLatexGeneration(unittest.TestCase):
         output_path = os.path.join(book.output_dir, file_name)
         doc.generate_tex(output_path)
 
-        # Verify .tex file was created
+        # Verify .tex file was created and has content
         tex_file = f"{output_path}.tex"
         self.assertTrue(os.path.exists(tex_file))
 
-        # Verify .tex file has content
         with open(tex_file, "r", encoding="utf-8") as f:
             content = f.read()
             self.assertIn("Test Book", content)
@@ -242,14 +224,42 @@ class TestExampleBookLatexGeneration(unittest.TestCase):
         )
         cls.has_example = os.path.isdir(cls.example_dir)
 
+    def _verify_tex_file(self, tex_file):
+        """Helper to verify LaTeX file content."""
+        self.assertTrue(
+            os.path.exists(tex_file), f"LaTeX file not found at {tex_file}"
+        )
+
+        with open(tex_file, "r", encoding="utf-8") as f:
+            content = f.read()
+            self.assertIn("The Example Novel", content)
+            self.assertIn("Jane Doe", content)
+            self.assertIn(r"\maketitle", content)
+            self.assertIn(r"\tableofcontents", content)
+            self.assertIn(r"\part{Foundations}", content)
+            self.assertIn(r"\part{Advanced}", content)
+
+        file_size = os.path.getsize(tex_file)
+        self.assertGreater(
+            file_size, 1000, f"LaTeX file too small: {file_size} bytes"
+        )
+
+    def _verify_pdf_file(self, pdf_file):
+        """Helper to verify PDF file exists and has content."""
+        self.assertTrue(
+            os.path.exists(pdf_file), f"PDF file not found at {pdf_file}"
+        )
+        pdf_size = os.path.getsize(pdf_file)
+        self.assertGreater(
+            pdf_size, 5000, f"PDF file too small: {pdf_size} bytes"
+        )
+
     def test_generate_example_book_latex(self):
         """Test generating LaTeX and PDF from the example book."""
         if not self.has_example:
             self.skipTest("Example book not found")
 
         book = Book(self.example_dir)
-
-        # Generate LaTeX and PDF using the full pipeline
         output_file = book.toLatex()
 
         # Verify output directory exists
@@ -269,37 +279,11 @@ class TestExampleBookLatexGeneration(unittest.TestCase):
         tex_file = os.path.join(book.output_dir, f"{file_name}.tex")
         pdf_file = os.path.join(book.output_dir, f"{file_name}.pdf")
 
-        # Verify .tex file was created
-        self.assertTrue(
-            os.path.exists(tex_file), f"LaTeX file not found at {tex_file}"
-        )
-
-        # Verify .tex file has expected content
-        with open(tex_file, "r", encoding="utf-8") as f:
-            content = f.read()
-            self.assertIn("The Example Novel", content)
-            self.assertIn("Jane Doe", content)
-            self.assertIn(r"\maketitle", content)
-            self.assertIn(r"\tableofcontents", content)
-            self.assertIn(r"\part{Foundations}", content)
-            self.assertIn(r"\part{Advanced}", content)
-
-        # Verify .tex file size is reasonable (not empty)
-        file_size = os.path.getsize(tex_file)
-        self.assertGreater(
-            file_size, 1000, f"LaTeX file too small: {file_size} bytes"
-        )
+        self._verify_tex_file(tex_file)
 
         # If PDF generation succeeded, verify PDF exists and has content
         if output_file.endswith(".pdf"):
-            self.assertTrue(
-                os.path.exists(pdf_file), f"PDF file not found at {pdf_file}"
-            )
-            # Verify PDF file size is reasonable (not empty)
-            pdf_size = os.path.getsize(pdf_file)
-            self.assertGreater(
-                pdf_size, 5000, f"PDF file too small: {pdf_size} bytes"
-            )
+            self._verify_pdf_file(pdf_file)
 
 
 if __name__ == "__main__":
