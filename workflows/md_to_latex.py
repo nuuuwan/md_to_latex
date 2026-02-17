@@ -3,16 +3,16 @@
 Pipeline for converting Markdown book directory to LaTeX/PDF.
 
 Usage:
-    python workflows/pipeline.py <book_directory_path>
+    python workflows/md_to_latex.py <book_directory_path>
 
 Example:
-    python workflows/pipeline.py /path/to/my-book
+    python workflows/md_to_latex.py /path/to/my-book
 """
 
 import os
 import sys
 
-from md_to_latex.core import Book
+from md_to_latex import Book
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -21,9 +21,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 def main():
     """Main pipeline execution."""
     if len(sys.argv) < 2:
-        print("Usage: python workflows/pipeline.py <book_directory_path>")
+        print("Usage: python workflows/md_to_latex.py <book_directory_path>")
         print("\nExample:")
-        print("  python workflows/pipeline.py /path/to/my-book")
+        print("  python workflows/md_to_latex.py /path/to/my-book")
         sys.exit(1)
 
     book_dir = sys.argv[1]
