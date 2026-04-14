@@ -54,17 +54,27 @@ The generated PDF follows professional book formatting standards:
 
 Your book directory should have the following structure:
 
-- **metadata.json**: Book metadata file (required)
-  - Contains book title, subtitle, author, year, edition, and publisher information
-  - See example format below
-- **Parts**: Located in a `parts/` folder
-  - Each part is in a subfolder named `part-<n>-<part_name>`
-  - Chapter files for each part are stored within the respective part directory
-  - **Important**: The first line of each chapter file is used as the chapter title
-- **About sections**:
-  - `about-the-author.md` - Information about the author
-  - `about-the-book.md` - Book description and details
-  - Both files should be in the root directory
+```
+book/
+├── metadata.json
+├── about-the-author.md
+├── about-the-book.md
+├── part-1/
+│   ├── chapter-01/
+│   │   ├── 001.md
+│   │   └── 002.md
+│   └── chapter-02/
+│       └── 001.md
+└── part-2/
+    └── chapter-03/
+        └── 001.md
+```
+
+- **Book directory**: can be named anything (e.g. `book/`, `my-novel/`)
+- **Part directories**: named `part-N` (e.g. `part-1`, `part-2`), placed directly inside the book directory. The title shown in output is derived from the number (e.g. "Part 1").
+- **Chapter directories**: named `chapter-NN` (e.g. `chapter-01`, `chapter-12`), placed inside each part directory.
+- **Markdown files**: named `NNN.md` (e.g. `001.md`, `002.md`), placed inside each chapter directory. Multiple files per chapter are concatenated in numeric order. The first line of the first file is used as the chapter title.
+- **Supplementary files** (`about-the-author.md`, `about-the-book.md`, `metadata.json`): placed directly in the book directory.
 
 ### metadata.json Format
 
@@ -85,7 +95,9 @@ All fields except `title` are optional. If `metadata.json` is not present, the d
 
 ### Chapter File Format
 
-Each chapter markdown file should start with the chapter title on the first line:
+Each chapter directory contains one or more `NNN.md` files (e.g. `001.md`, `002.md`). Files are read in numeric order and concatenated to form the chapter content.
+
+The first line of the first file in each chapter directory is used as the chapter title:
 
 ```markdown
 # Chapter Title
@@ -93,7 +105,7 @@ Each chapter markdown file should start with the chapter title on the first line
 Chapter content starts here...
 ```
 
-The first line (with or without the `#` marker) will be used as the chapter title in the LaTeX output.
+Subsequent files do not need a title heading — their content is appended directly.
 
 ## Library Structure
 

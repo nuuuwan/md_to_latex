@@ -1,3 +1,4 @@
+import os
 import re
 
 from pylatex import NoEscape, Section
@@ -6,35 +7,53 @@ from pylatex import NoEscape, Section
 class Chapter:
     """Represents a chapter in the book."""
 
-    def __init__(self, file_path):
+    def __init__(self, chapter_dir):
         """
-        Initialize a Chapter from a markdown file.
+        Initialize a Chapter from a directory containing NNN.md files.
 
         Args:
-            file_path: Path to the markdown file
+            chapter_dir: Path to the chapter directory (e.g., chapter-01)
         """
-        self.file_path = file_path
+        self.chapter_dir = chapter_dir
+        self._md_files = self._sorted_md_files()
         self.title = self._extract_title()
         self.content = self._read_content()
 
-    def _extract_title(self):
-        """Extract chapter title from the first line of the file."""
-        with open(self.file_path, "r", encoding="utf-8") as f:
-            first_line = f.readline().strip()
+    def _sorted_md_files(self):
+        """Return sorted list of NNN.md file paths in the chapter dir."""
+        if not os.path.isdir(self.chapter_dir):
+            return []
+        files = [
+            f
+            for f in os.listdir(self.chapter_dir)
+            if re.fullmatch(r"\d+\.md", f)
+        ]
+        files.sort(key=lambda f: int(re.match(r"(\d+)\.md", f).group(1)))
+        return [os.path.join(self.chapter_dir, f) for f in files]
 
+    def _extract_title(self):
+        """Extract chapter title from the first line of the first file."""
+        if not self._md_files:
+            return os.path.basename(self.chapter_dir).title()
+        with open(self._md_files[0], "r", encoding="utf-8") as f:
+            first_line = f.readline().strip()
         # Remove markdown heading markers if present
         title = re.sub(r"^#+\s*", "", first_line)
         return title
 
     def _read_content(self):
-        """Read and parse the markdown content."""
-        with open(self.file_path, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-
-        # Skip the first line (chapter title) and join the rest
-        content = "".join(lines[1:]) if len(lines) > 1 else ""
-
-        return content
+        """Read and concatenate content from all NNN.md files."""
+        parts = []
+        for i, file_path in enumerate(self._md_files):
+            with open(file_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            if i == 0:
+                # Skip the first line (chapter title) from the first file
+                content = "".join(lines[1:]) if len(lines) > 1 else ""
+            else:
+                content = "".join(lines)
+            parts.append(content)
+        return "".join(parts)
 
     def _convert_headings(self, text):
         """Convert markdown headings to LaTeX sections."""
@@ -101,6 +120,9 @@ class Chapter:
 
         # Escape remaining underscores (those not part of markdown)
         text = re.sub(r"_", r"\\_", text)
+
+        # Escape hash signs (those not part of LaTeX commands)
+        text = re.sub(r"(?<!\\)#", r"\\#", text)
 
         # Quotes: "text" -> \say{text}
         text = re.sub(r'"([^"]+)"', r"\\say{\1}", text)

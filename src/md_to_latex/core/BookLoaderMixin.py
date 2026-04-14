@@ -28,28 +28,27 @@ class BookLoaderMixin:
         return {}
 
     def _load_parts(self):
-        """Load all parts from the parts directory."""
+        """Load all parts directly from the book directory."""
         parts = []
-        parts_dir = os.path.join(self.book_dir, "parts")
 
-        if not os.path.isdir(parts_dir):
+        if not os.path.isdir(self.book_dir):
             return parts
 
-        # Get all part directories
+        # Get all part-N directories directly inside the book dir
         part_dirs = [
             d
-            for d in os.listdir(parts_dir)
+            for d in os.listdir(self.book_dir)
             if (
-                os.path.isdir(os.path.join(parts_dir, d))
-                and d.startswith("part-")
+                os.path.isdir(os.path.join(self.book_dir, d))
+                and re.fullmatch(r"part-\d+", d)
             )
         ]
 
         # Sort parts by number
-        part_dirs.sort()
+        part_dirs.sort(key=lambda d: int(d.split("-")[1]))
 
         for part_dir in part_dirs:
-            part_path = os.path.join(parts_dir, part_dir)
+            part_path = os.path.join(self.book_dir, part_dir)
             parts.append(Part(part_path))
 
         return parts

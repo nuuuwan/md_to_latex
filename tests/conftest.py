@@ -44,9 +44,12 @@ def _create_about_files(book_dir):
         f.write(about_author_content)
 
 
-def _create_part1_chapters(part1_dir):
-    """Create chapters for Part 1: Foundations."""
-    chapter1_content = (
+def _create_chapter01(part1_dir):
+    """Create chapter-01 content for Part 1."""
+    ch1_dir = os.path.join(part1_dir, "chapter-01")
+    os.makedirs(ch1_dir, exist_ok=True)
+
+    ch1_file1 = (
         "# Introduction to Writing\n\n"
         "This chapter introduces the **art of writing**. "
         "Writing is *fundamental* to human communication.\n\n"
@@ -57,11 +60,25 @@ def _create_part1_chapters(part1_dir):
         'The best writers understand that "practice makes perfect" '
         "and dedicate themselves to their craft.\n"
     )
-    ch1_path = os.path.join(part1_dir, "chapter-1-introduction.md")
-    with open(ch1_path, "w", encoding="utf-8") as f:
-        f.write(chapter1_content)
+    with open(os.path.join(ch1_dir, "001.md"), "w", encoding="utf-8") as f:
+        f.write(ch1_file1)
 
-    chapter2_content = (
+    ch1_file2 = (
+        "When you sit down to write, the blank page can feel daunting. "
+        "But every great work begins with a single sentence.\n\n"
+        "Remember that writing is a *process*, not a single act. "
+        "Allow yourself to **draft freely** before refining.\n"
+    )
+    with open(os.path.join(ch1_dir, "002.md"), "w", encoding="utf-8") as f:
+        f.write(ch1_file2)
+
+
+def _create_chapter02(part1_dir):
+    """Create chapter-02 content for Part 1."""
+    ch2_dir = os.path.join(part1_dir, "chapter-02")
+    os.makedirs(ch2_dir, exist_ok=True)
+
+    ch2_file1 = (
         "# The Writing Process\n\n"
         "The **writing process** involves several *key stages*:\n\n"
         "1. **Planning**: Think about what you want to say\n"
@@ -70,16 +87,24 @@ def _create_part1_chapters(part1_dir):
         "4. **Editing**: Polish the details\n\n"
         'As Hemingway said, "The first draft of anything is garbage." '
         "This reminds us to embrace **revision** as a *crucial* part "
-        "of the process.\n"
+        "of the process. #ThisIsAHashtag\n"
     )
-    ch2_path = os.path.join(part1_dir, "chapter-2-process.md")
-    with open(ch2_path, "w", encoding="utf-8") as f:
-        f.write(chapter2_content)
+    with open(os.path.join(ch2_dir, "001.md"), "w", encoding="utf-8") as f:
+        f.write(ch2_file1)
+
+
+def _create_part1_chapters(part1_dir):
+    """Create chapters for Part 1."""
+    _create_chapter01(part1_dir)
+    _create_chapter02(part1_dir)
 
 
 def _create_part2_chapters(part2_dir):
-    """Create chapters for Part 2: Advanced."""
-    chapter3_content = (
+    """Create chapters for Part 2."""
+    ch3_dir = os.path.join(part2_dir, "chapter-03")
+    os.makedirs(ch3_dir, exist_ok=True)
+
+    ch3_file1 = (
         "# Advanced Techniques\n\n"
         "**Advanced writers** develop their own *unique voice*. "
         "This chapter explores sophisticated techniques.\n\n"
@@ -92,9 +117,8 @@ def _create_part2_chapters(part2_dir):
         'Remember that "less is more" when it comes to effective '
         "writing.\n"
     )
-    ch3_path = os.path.join(part2_dir, "chapter-3-techniques.md")
-    with open(ch3_path, "w", encoding="utf-8") as f:
-        f.write(chapter3_content)
+    with open(os.path.join(ch3_dir, "001.md"), "w", encoding="utf-8") as f:
+        f.write(ch3_file1)
 
 
 @pytest.fixture(scope="session")
@@ -114,17 +138,13 @@ def example_book_dir():
         _create_metadata_file(book_dir)
         _create_about_files(book_dir)
 
-        # Create parts directory structure
-        parts_dir = os.path.join(book_dir, "parts")
-        os.makedirs(parts_dir)
-
-        # Part 1: Foundations
-        part1_dir = os.path.join(parts_dir, "part-1-foundations")
+        # Part 1
+        part1_dir = os.path.join(book_dir, "part-1")
         os.makedirs(part1_dir)
         _create_part1_chapters(part1_dir)
 
-        # Part 2: Advanced
-        part2_dir = os.path.join(parts_dir, "part-2-advanced")
+        # Part 2
+        part2_dir = os.path.join(book_dir, "part-2")
         os.makedirs(part2_dir)
         _create_part2_chapters(part2_dir)
 

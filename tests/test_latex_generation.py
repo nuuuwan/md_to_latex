@@ -20,7 +20,8 @@ class TestChapterLatexGeneration(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.test_file = os.path.join(self.temp_dir, "test_chapter.md")
+        self.chapter_dir = os.path.join(self.temp_dir, "chapter-01")
+        os.makedirs(self.chapter_dir)
 
     def tearDown(self):
         """Clean up test fixtures."""
@@ -34,10 +35,12 @@ class TestChapterLatexGeneration(unittest.TestCase):
     def test_chapter_to_latex(self):
         """Test chapter LaTeX generation."""
         content = "# Test Chapter\n\nThis is **bold** text."
-        with open(self.test_file, "w", encoding="utf-8") as f:
+        with open(
+            os.path.join(self.chapter_dir, "001.md"), "w", encoding="utf-8"
+        ) as f:
             f.write(content)
 
-        chapter = Chapter(self.test_file)
+        chapter = Chapter(self.chapter_dir)
         doc = Document()
         chapter.to_latex(doc)
 
@@ -53,7 +56,7 @@ class TestPartLatexGeneration(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.part_dir = os.path.join(self.temp_dir, "part-1-introduction")
+        self.part_dir = os.path.join(self.temp_dir, "part-1")
         os.makedirs(self.part_dir)
 
     def tearDown(self):
@@ -67,9 +70,10 @@ class TestPartLatexGeneration(unittest.TestCase):
 
     def test_part_to_latex(self):
         """Test part LaTeX generation."""
-        # Create a chapter
-        chapter_file = os.path.join(self.part_dir, "chapter-1.md")
-        with open(chapter_file, "w", encoding="utf-8") as f:
+        # Create a chapter directory with a markdown file
+        ch_dir = os.path.join(self.part_dir, "chapter-01")
+        os.makedirs(ch_dir)
+        with open(os.path.join(ch_dir, "001.md"), "w", encoding="utf-8") as f:
             f.write("# First Chapter\n\nContent here.")
 
         part = Part(self.part_dir)
@@ -78,7 +82,7 @@ class TestPartLatexGeneration(unittest.TestCase):
 
         # Generate LaTeX string
         latex_str = doc.dumps()
-        self.assertIn(r"\part{Introduction}", latex_str)
+        self.assertIn(r"\part{Part 1}", latex_str)
         self.assertIn("First Chapter", latex_str)
 
 
@@ -113,12 +117,13 @@ class TestBookLatexGeneration(unittest.TestCase):
             json.dump(metadata, f)
 
         if with_chapter:
-            parts_dir = os.path.join(self.temp_dir, "parts")
-            os.makedirs(parts_dir)
-            part_dir = os.path.join(parts_dir, "part-1-test")
+            part_dir = os.path.join(self.temp_dir, "part-1")
             os.makedirs(part_dir)
-            chapter_file = os.path.join(part_dir, "chapter-1.md")
-            with open(chapter_file, "w", encoding="utf-8") as f:
+            ch_dir = os.path.join(part_dir, "chapter-01")
+            os.makedirs(ch_dir)
+            with open(
+                os.path.join(ch_dir, "001.md"), "w", encoding="utf-8"
+            ) as f:
                 f.write("# Test Chapter\n\nTest content.")
 
     def test_book_latex_document_creation(self):
@@ -236,8 +241,8 @@ class TestExampleBookLatexGeneration(unittest.TestCase):
             self.assertIn("Jane Doe", content)
             self.assertIn(r"\maketitle", content)
             self.assertIn(r"\tableofcontents", content)
-            self.assertIn(r"\part{Foundations}", content)
-            self.assertIn(r"\part{Advanced}", content)
+            self.assertIn(r"\part{Part 1}", content)
+            self.assertIn(r"\part{Part 2}", content)
 
         file_size = os.path.getsize(tex_file)
         self.assertGreater(

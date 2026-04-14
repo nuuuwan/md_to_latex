@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pylatex import Command, NoEscape, Section
 
 
@@ -15,47 +17,42 @@ class BookFrontMatterMixin:
             )
         return "\\\\\n\\vspace{0.5em}\n".join(title_parts)
 
+    def _format_date_str(self):
+        """Format self.year into a display date string."""
+        if not self.year:
+            return r"{\fontsize{9}{10.8}\selectfont \today}"
+        for fmt in ("%Y", "%Y-%m-%d"):
+            try:
+                return datetime.strptime(self.year, fmt).strftime("%B %d, %Y")
+            except ValueError:
+                pass
+        return self.year
+
+    def _build_date_block(self):
+        """Build the date + word count preamble block."""
+        date_str = self._format_date_str()
+        date_part = f"{{\\fontsize{{9}}{{10.8}}\\selectfont {date_str}}}"
+        word_part = (
+            f"{{\\fontsize{{12}}{{14.4}}\\selectfont"
+            f" {self.word_count:,} words}}"
+        )
+        return "\\\\\n\\vspace{0.3em}\n".join([date_part, word_part])
+
     def _setup_document_metadata(self, doc):
         """Set up document title, author, date, and custom commands."""
         title_with_metadata = self._build_title()
         doc.preamble.append(Command("title", NoEscape(title_with_metadata)))
 
-        # Add author with "By" prefix if specified in metadata
         if self.author:
             author_text = (
-                f"{{\\fontsize{{18}}{{21.6}}\\selectfont By {self.author}}}"
+                f"{{\\fontsize{{18}}{{21.6}}\\selectfont"
+                f" By {self.author}}}"
             )
             doc.preamble.append(Command("author", NoEscape(author_text)))
 
-        # Add date and word count
-        date_parts = []
-        if self.year:
-            # Try to parse as full date, fallback to year only
-            from datetime import datetime
-
-            try:
-                date_obj = datetime.strptime(self.year, "%Y")
-                date_str = date_obj.strftime("%B %d, %Y")
-            except ValueError:
-                try:
-                    date_obj = datetime.strptime(self.year, "%Y-%m-%d")
-                    date_str = date_obj.strftime("%B %d, %Y")
-                except ValueError:
-                    date_str = self.year
-            date_parts.append(
-                f"{{\\fontsize{{9}}{{10.8}}\\selectfont {date_str}}}"
-            )
-        else:
-            date_parts.append(r"{\fontsize{9}{10.8}\selectfont \today}")
-
-        # Add word count in 12pt font
-        date_parts.append(
-            f"{{\\fontsize{{12}}{{14.4}}\\selectfont {self.word_count:,} words}}"
-        )
-        date_text = "\\\\\n\\vspace{0.3em}\n".join(date_parts)
+        date_text = self._build_date_block()
         doc.preamble.append(Command("date", NoEscape(date_text)))
 
-        # Define book title command for headers
         doc.preamble.append(
             NoEscape(f"\\newcommand{{\\booktitle}}{{{self.title}}}")
         )

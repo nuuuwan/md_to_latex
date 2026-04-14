@@ -59,16 +59,16 @@ class TestBookInit(unittest.TestCase):
         self.assertIsNone(book.author)
 
     def test_parts_loading(self):
-        """Test loading parts from parts directory."""
-        parts_dir = os.path.join(self.temp_dir, "parts")
-        os.makedirs(parts_dir)
-
-        # Create two parts
+        """Test loading parts from the book directory."""
+        # Create two part directories directly inside the book dir
         for i in range(1, 3):
-            part_dir = os.path.join(parts_dir, f"part-{i}-test")
+            part_dir = os.path.join(self.temp_dir, f"part-{i}")
             os.makedirs(part_dir)
-            chapter_file = os.path.join(part_dir, "chapter-1.md")
-            with open(chapter_file, "w", encoding="utf-8") as f:
+            ch_dir = os.path.join(part_dir, "chapter-01")
+            os.makedirs(ch_dir)
+            with open(
+                os.path.join(ch_dir, "001.md"), "w", encoding="utf-8"
+            ) as f:
                 f.write(f"# Chapter {i}\n\nContent.")
 
         book = Book(self.temp_dir)
@@ -117,15 +117,11 @@ class TestBookLoaderMixin(unittest.TestCase):
 
     def test_count_words(self):
         """Test word counting."""
-        parts_dir = os.path.join(self.temp_dir, "parts")
-        os.makedirs(parts_dir)
+        part_dir = os.path.join(self.temp_dir, "part-1")
+        ch_dir = os.path.join(part_dir, "chapter-01")
+        os.makedirs(ch_dir)
 
-        part_dir = os.path.join(parts_dir, "part-1-test")
-        os.makedirs(part_dir)
-
-        # Create chapter with known word count
-        chapter_file = os.path.join(part_dir, "chapter-1.md")
-        with open(chapter_file, "w", encoding="utf-8") as f:
+        with open(os.path.join(ch_dir, "001.md"), "w", encoding="utf-8") as f:
             f.write("# Chapter\n\nOne two three four five.")
 
         book = Book(self.temp_dir)
@@ -134,14 +130,11 @@ class TestBookLoaderMixin(unittest.TestCase):
 
     def test_has_section_breaks_true(self):
         """Test section break detection when present."""
-        parts_dir = os.path.join(self.temp_dir, "parts")
-        os.makedirs(parts_dir)
+        part_dir = os.path.join(self.temp_dir, "part-1")
+        ch_dir = os.path.join(part_dir, "chapter-01")
+        os.makedirs(ch_dir)
 
-        part_dir = os.path.join(parts_dir, "part-1-test")
-        os.makedirs(part_dir)
-
-        chapter_file = os.path.join(part_dir, "chapter-1.md")
-        with open(chapter_file, "w", encoding="utf-8") as f:
+        with open(os.path.join(ch_dir, "001.md"), "w", encoding="utf-8") as f:
             f.write("# Chapter\n\nBefore\n\n---\n\nAfter")
 
         book = Book(self.temp_dir)
@@ -149,14 +142,11 @@ class TestBookLoaderMixin(unittest.TestCase):
 
     def test_has_section_breaks_false(self):
         """Test section break detection when absent."""
-        parts_dir = os.path.join(self.temp_dir, "parts")
-        os.makedirs(parts_dir)
+        part_dir = os.path.join(self.temp_dir, "part-1")
+        ch_dir = os.path.join(part_dir, "chapter-01")
+        os.makedirs(ch_dir)
 
-        part_dir = os.path.join(parts_dir, "part-1-test")
-        os.makedirs(part_dir)
-
-        chapter_file = os.path.join(part_dir, "chapter-1.md")
-        with open(chapter_file, "w", encoding="utf-8") as f:
+        with open(os.path.join(ch_dir, "001.md"), "w", encoding="utf-8") as f:
             f.write("# Chapter\n\nNo section breaks here.")
 
         book = Book(self.temp_dir)

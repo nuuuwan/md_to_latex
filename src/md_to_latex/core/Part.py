@@ -23,31 +23,35 @@ class Part:
     def _extract_title(self):
         """Extract part title from directory name."""
         dirname = os.path.basename(self.part_dir)
-        # Expected format: part-<n>-<part_name>
-        match = re.match(r"part-\d+-(.+)", dirname)
+        # Expected format: part-<n>
+        match = re.match(r"part-(\d+)$", dirname)
         if match:
-            title = match.group(1)
-            # Replace hyphens and underscores with spaces, capitalize
-            title = title.replace("-", " ").replace("_", " ").title()
-            return title
+            return f"Part {int(match.group(1))}"
         return dirname.title()
 
     def _load_chapters(self):
-        """Load all markdown files in the part directory as chapters."""
+        """Load all chapter-NN subdirectories in the part directory."""
         chapters = []
 
         if not os.path.isdir(self.part_dir):
             return chapters
 
-        # Get all .md files in the directory
-        md_files = [f for f in os.listdir(self.part_dir) if f.endswith(".md")]
+        # Get all chapter-NN subdirectories
+        chapter_dirs = [
+            d
+            for d in os.listdir(self.part_dir)
+            if (
+                os.path.isdir(os.path.join(self.part_dir, d))
+                and re.fullmatch(r"chapter-\d+", d)
+            )
+        ]
 
-        # Sort files alphabetically
-        md_files.sort()
+        # Sort by chapter number
+        chapter_dirs.sort(key=lambda d: int(d.split("-")[1]))
 
-        for md_file in md_files:
-            file_path = os.path.join(self.part_dir, md_file)
-            chapters.append(Chapter(file_path))
+        for chapter_dir in chapter_dirs:
+            dir_path = os.path.join(self.part_dir, chapter_dir)
+            chapters.append(Chapter(dir_path))
 
         return chapters
 
