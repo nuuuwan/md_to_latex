@@ -146,7 +146,7 @@ class TestMarkdownParsing(unittest.TestCase):
             "# Title\n\n## Subsection\n\nContent here."
         )
         latex = chapter._parse_markdown_to_latex(chapter.content)
-        self.assertIn(r"\subsection{Subsection}", latex)
+        self.assertIn(r"\subsection*{Subsection}", latex)
 
     def test_section_break_conversion(self):
         """Test section break conversion."""

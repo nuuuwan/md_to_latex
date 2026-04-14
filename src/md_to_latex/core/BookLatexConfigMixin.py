@@ -31,6 +31,9 @@ class BookLatexConfigMixin:
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
         doc.preamble.append(
+            NoEscape(r"\definecolor{darkgrey}{RGB}{80,80,80}")
+        )
+        doc.preamble.append(
             NoEscape(r"\renewcommand{\say}[1]{\textcolor{maroon}{``#1''}}")
         )
 
@@ -67,12 +70,24 @@ class BookLatexConfigMixin:
         doc.preamble.append(NoEscape(r"\fancyhf{}"))
 
         # Left page (even): book title in center, page number on left
-        doc.preamble.append(NoEscape(r"\fancyhead[LE]{\thepage}"))
-        doc.preamble.append(NoEscape(r"\fancyhead[CE]{\booktitle}"))
+        doc.preamble.append(
+            NoEscape(r"\fancyhead[LE]{\textcolor{darkgrey}{\thepage}}")
+        )
+        doc.preamble.append(
+            NoEscape(
+                r"\fancyhead[CE]{\textcolor{darkgrey}{\textit{\booktitle}}}"
+            )
+        )
 
         # Right page (odd): chapter name in center, page number on right
-        doc.preamble.append(NoEscape(r"\fancyhead[RO]{\thepage}"))
-        doc.preamble.append(NoEscape(r"\fancyhead[CO]{\leftmark}"))
+        doc.preamble.append(
+            NoEscape(r"\fancyhead[RO]{\textcolor{darkgrey}{\thepage}}")
+        )
+        doc.preamble.append(
+            NoEscape(
+                r"\fancyhead[CO]{\textcolor{darkgrey}{\textit{\nouppercase{\leftmark}}}}"
+            )
+        )
 
         # Remove header rule
         doc.preamble.append(NoEscape(r"\renewcommand{\headrulewidth}{0pt}"))

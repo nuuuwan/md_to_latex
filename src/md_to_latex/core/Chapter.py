@@ -55,10 +55,10 @@ class Chapter:
 
     def _convert_headings(self, text):
         """Convert markdown headings to LaTeX sections."""
-        text = re.sub(r"####\s+(.+)", r"\\subsubsection{\1}", text)
-        text = re.sub(r"###\s+(.+)", r"\\subsection{\1}", text)
-        text = re.sub(r"##\s+(.+)", r"\\subsection{\1}", text)
-        text = re.sub(r"#\s+(.+)", r"\\section{\1}", text)
+        text = re.sub(r"####\s+(.+)", r"\\subsubsection*{\1}", text)
+        text = re.sub(r"###\s+(.+)", r"\\subsection*{\1}", text)
+        text = re.sub(r"##\s+(.+)", r"\\subsection*{\1}", text)
+        text = re.sub(r"#\s+(.+)", r"\\section*{\1}", text)
         return text
 
     def _convert_bold_italic(self, text):
@@ -106,8 +106,8 @@ class Chapter:
         - Headings: ## Heading -> \\subsection{Heading}
         - Section breaks: --- or ... -> \\scenebreak
         """
-        text = self._convert_headings(text)
         text = self._convert_bold_italic(text)
+        text = self._convert_headings(text)
 
         # Section breaks: --- or ... on their own line
         text = re.sub(
