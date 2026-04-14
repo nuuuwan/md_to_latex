@@ -49,6 +49,10 @@ class TestExampleBook(unittest.TestCase):
         if not self.has_example:
             self.skipTest("Example book not found")
 
+        # Should match new part folders
+        part_names = [os.path.basename(p.part_dir) for p in self.book.parts]
+        self.assertIn("part-1-introduction", part_names)
+        self.assertIn("part-2-advanced-topics", part_names)
         self.assertEqual(len(self.book.parts), 2)
 
     def test_book_chapters(self):
@@ -56,10 +60,16 @@ class TestExampleBook(unittest.TestCase):
         if not self.has_example:
             self.skipTest("Example book not found")
 
-        # Part 1 should have 2 chapters
-        self.assertEqual(len(self.book.parts[0].chapters), 2)
-        # Part 2 should have 1 chapter
-        self.assertEqual(len(self.book.parts[1].chapters), 1)
+        # Find parts by new names
+        parts_by_name = {
+            os.path.basename(p.part_dir): p for p in self.book.parts
+        }
+        part1 = parts_by_name.get("part-1-introduction")
+        part2 = parts_by_name.get("part-2-advanced-topics")
+        self.assertIsNotNone(part1)
+        self.assertIsNotNone(part2)
+        self.assertEqual(len(part1.chapters), 2)
+        self.assertEqual(len(part2.chapters), 1)
 
     def test_book_about_files(self):
         """Test that about files are loaded correctly."""

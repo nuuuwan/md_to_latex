@@ -1,7 +1,7 @@
 import os
 import re
 
-from pylatex import NoEscape, Section
+from pylatex import NoEscape
 
 
 class Chapter:
@@ -32,38 +32,25 @@ class Chapter:
         return [os.path.join(self.chapter_dir, f) for f in files]
 
     def _extract_title(self):
-        """Extract chapter title from the first line of the first file, or from kebab-case dir name."""
-        if not self._md_files:
-            # Try to extract from directory name: chapter-<NN>-<name>
-            dirname = os.path.basename(self.chapter_dir)
-            match = re.match(r"chapter-(\d+)-(.+)", dirname)
-            if match:
-                chapter_num = int(match.group(1))
-                chapter_name = match.group(2).replace('-', ' ').title()
-                return f"Chapter {chapter_num}: {chapter_name}"
-            # Fallback: chapter-<NN>
-            match = re.match(r"chapter-(\d+)$", dirname)
-            if match:
-                return f"Chapter {int(match.group(1))}"
-            return dirname.title()
-        with open(self._md_files[0], "r", encoding="utf-8") as f:
-            first_line = f.readline().strip()
-        # Remove markdown heading markers if present
-        title = re.sub(r"^#+\s*", "", first_line)
-        return title
+        """Extract chapter title from the kebab-case directory name."""
+        dirname = os.path.basename(self.chapter_dir)
+        # Expected format: chapter-<NN>-<name>
+        match = re.match(r"chapter-(\d+)-(.+)", dirname)
+        if match:
+            chapter_name = match.group(2).replace("-", " ").title()
+            return chapter_name
+        # Fallback: chapter-<NN>
+        match = re.match(r"chapter-(\d+)$", dirname)
+        if match:
+            return f"Chapter {int(match.group(1))}"
+        return dirname.title()
 
     def _read_content(self):
         """Read and concatenate content from all NNN.md files."""
         parts = []
-        for i, file_path in enumerate(self._md_files):
+        for file_path in self._md_files:
             with open(file_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-            if i == 0:
-                # Skip the first line (chapter title) from the first file
-                content = "".join(lines[1:]) if len(lines) > 1 else ""
-            else:
-                content = "".join(lines)
-            parts.append(content)
+                parts.append(f.read())
         return "".join(parts)
 
     def _convert_headings(self, text):
@@ -71,6 +58,7 @@ class Chapter:
         text = re.sub(r"####\s+(.+)", r"\\subsubsection{\1}", text)
         text = re.sub(r"###\s+(.+)", r"\\subsection{\1}", text)
         text = re.sub(r"##\s+(.+)", r"\\subsection{\1}", text)
+        text = re.sub(r"#\s+(.+)", r"\\section{\1}", text)
         return text
 
     def _convert_bold_italic(self, text):
@@ -155,9 +143,9 @@ class Chapter:
         Args:
             doc: PyLaTeX Document object
         """
-        with doc.create(Section(self.title)):
-            latex_content = self._parse_markdown_to_latex(self.content)
-            doc.append(NoEscape(latex_content))
+        doc.append(NoEscape(r"\chapter{" + self.title + "}"))
+        latex_content = self._parse_markdown_to_latex(self.content)
+        doc.append(NoEscape(latex_content))
 
         # Add page break after chapter
         doc.append(NoEscape(r"\newpage"))

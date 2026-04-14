@@ -26,7 +26,9 @@ class TestPartInit(unittest.TestCase):
                 os.rmdir(os.path.join(root, name))
         os.rmdir(self.temp_dir)
 
-    def _make_chapter_dir(self, part_dir, chapter_num, chapter_name_kebab, title="Chapter Title"):
+    def _make_chapter_dir(
+        self, part_dir, chapter_num, chapter_name_kebab, title="Chapter Title"
+    ):
         dirname = f"chapter-{chapter_num:02d}-{chapter_name_kebab}"
         ch_dir = os.path.join(part_dir, dirname)
         os.makedirs(ch_dir, exist_ok=True)
@@ -63,23 +65,27 @@ class TestPartInit(unittest.TestCase):
 
     def test_chapter_loading(self):
         """Test chapter loading from subdirectories."""
-        part_dir = os.path.join(self.temp_dir, "part-1")
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
         os.makedirs(part_dir)
 
         for i in range(1, 4):
-            self._make_chapter_dir(part_dir, f"chapter-0{i}", f"Chapter {i}")
+            self._make_chapter_dir(
+                part_dir, i, f"chapter-{i}", f"Chapter {i}"
+            )
 
         part = Part(part_dir)
         self.assertEqual(len(part.chapters), 3)
 
     def test_chapter_sorting(self):
         """Test that chapters are loaded in sorted order."""
-        part_dir = os.path.join(self.temp_dir, "part-1")
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
         os.makedirs(part_dir)
 
         # Create chapters in non-sequential order
         for i in [3, 1, 2]:
-            self._make_chapter_dir(part_dir, f"chapter-0{i}", f"Chapter {i}")
+            self._make_chapter_dir(
+                part_dir, i, f"chapter-{i}", f"Chapter {i}"
+            )
 
         part = Part(part_dir)
         self.assertEqual(part.chapters[0].title, "Chapter 1")
@@ -88,7 +94,7 @@ class TestPartInit(unittest.TestCase):
 
     def test_empty_directory(self):
         """Test part with no chapters."""
-        part_dir = os.path.join(self.temp_dir, "part-1")
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
         os.makedirs(part_dir)
 
         part = Part(part_dir)
@@ -96,10 +102,10 @@ class TestPartInit(unittest.TestCase):
 
     def test_non_chapter_dirs_ignored(self):
         """Test that directories not matching chapter-NN are ignored."""
-        part_dir = os.path.join(self.temp_dir, "part-1")
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
         os.makedirs(part_dir)
 
-        self._make_chapter_dir(part_dir, "chapter-01", "Real Chapter")
+        self._make_chapter_dir(part_dir, 1, "real-chapter", "Real Chapter")
 
         # Extra dirs that should be ignored
         os.makedirs(os.path.join(part_dir, "notes"), exist_ok=True)

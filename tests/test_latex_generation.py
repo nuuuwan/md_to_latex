@@ -20,7 +20,9 @@ class TestChapterLatexGeneration(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.chapter_dir = os.path.join(self.temp_dir, "chapter-01-getting-started")
+        self.chapter_dir = os.path.join(
+            self.temp_dir, "chapter-01-getting-started"
+        )
         os.makedirs(self.chapter_dir)
 
     def tearDown(self):
@@ -68,22 +70,23 @@ class TestPartLatexGeneration(unittest.TestCase):
                 os.rmdir(os.path.join(root, name))
         os.rmdir(self.temp_dir)
 
-    def test_part_to_latex(self):
-        """Test part LaTeX generation."""
-        # Create a chapter directory with a markdown file
-        ch_dir = os.path.join(self.part_dir, "chapter-01")
-        os.makedirs(ch_dir)
-        with open(os.path.join(ch_dir, "001.md"), "w", encoding="utf-8") as f:
-            f.write("# First Chapter\n\nContent here.")
+        def test_part_to_latex(self):
+            """Test part LaTeX generation."""
+            chapter_dir = os.path.join(
+                self.part_dir, "chapter-01-getting-started"
+            )
+            os.makedirs(chapter_dir)
+            with open(
+                os.path.join(chapter_dir, "001.md"), "w", encoding="utf-8"
+            ) as f:
+                f.write("# Chapter One\n\nContent.")
 
-        part = Part(self.part_dir)
-        doc = Document()
-        part.to_latex(doc)
-
-        # Generate LaTeX string
-        latex_str = doc.dumps()
-        self.assertIn(r"\part{Part 1}", latex_str)
-        self.assertIn("First Chapter", latex_str)
+            part = Part(self.part_dir)
+            doc = Document()
+            part.to_latex(doc)
+            latex_str = doc.dumps()
+            self.assertIn(r"\part{Part 1: Intro}", latex_str)
+            self.assertIn("Chapter One", latex_str)
 
 
 class TestBookLatexGeneration(unittest.TestCase):
@@ -241,8 +244,8 @@ class TestExampleBookLatexGeneration(unittest.TestCase):
             self.assertIn("Jane Doe", content)
             self.assertIn(r"\maketitle", content)
             self.assertIn(r"\tableofcontents", content)
-            self.assertIn(r"\part{Part 1}", content)
-            self.assertIn(r"\part{Part 2}", content)
+            self.assertIn(r"\part{Part 1: Introduction}", content)
+            self.assertIn(r"\part{Part 2: Advanced Topics}", content)
 
         file_size = os.path.getsize(tex_file)
         self.assertGreater(

@@ -15,7 +15,9 @@ class TestChapterInit(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.chapter_dir = os.path.join(self.temp_dir, "chapter-01-getting-started")
+        self.chapter_dir = os.path.join(
+            self.temp_dir, "chapter-01-getting-started"
+        )
         os.makedirs(self.chapter_dir)
 
     def tearDown(self):
@@ -37,30 +39,29 @@ class TestChapterInit(unittest.TestCase):
         self._write("001.md", "# Test Chapter\n\nThis is test content.")
 
         chapter = Chapter(self.chapter_dir)
-        self.assertEqual(chapter.title, "Test Chapter")
+        # Title is derived from directory name, not the # heading in the file
+        self.assertEqual(chapter.title, "Getting Started")
         self.assertIn("This is test content.", chapter.content)
 
     def test_title_extraction(self):
-        """Test title extraction from different heading formats."""
+        """Test title extraction from directory name."""
         test_cases = [
-            ("# Single Hash", "Single Hash"),
-            ("## Double Hash", "Double Hash"),
-            ("### Triple Hash", "Triple Hash"),
-            ("#### Quad Hash", "Quad Hash"),
+            ("chapter-01-getting-started", "Getting Started"),
+            ("chapter-02-the-writing-process", "The Writing Process"),
+            ("chapter-10-final-thoughts", "Final Thoughts"),
         ]
+        for dirname, expected_title in test_cases:
+            chapter_dir = os.path.join(self.temp_dir, dirname)
+            os.makedirs(chapter_dir, exist_ok=True)
+            with open(os.path.join(chapter_dir, "001.md"), "w") as f:
+                f.write("# Some Heading\n\nContent here.")
 
-        for heading, expected_title in test_cases:
-            # Clear dir
-            for f in os.listdir(self.chapter_dir):
-                os.remove(os.path.join(self.chapter_dir, f))
-            self._write("001.md", f"{heading}\n\nContent here.")
-
-            chapter = Chapter(self.chapter_dir)
+            chapter = Chapter(chapter_dir)
             self.assertEqual(chapter.title, expected_title)
 
     def test_multiple_files_concatenated(self):
         """Test that content from multiple NNN.md files is concatenated."""
-        self._write("001.md", "# Chapter Title\n\nFile one content.")
+        self._write("001.md", "# Section One\n\nFile one content.")
         self._write("002.md", "File two content.")
 
         chapter = Chapter(self.chapter_dir)

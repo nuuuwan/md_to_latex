@@ -27,7 +27,7 @@ class Part:
         match = re.match(r"part-(\d+)-(.+)", dirname)
         if match:
             part_num = int(match.group(1))
-            part_name = match.group(2).replace('-', ' ').title()
+            part_name = match.group(2).replace("-", " ").title()
             return f"Part {part_num}: {part_name}"
         # Fallback: part-<n>
         match = re.match(r"part-(\d+)$", dirname)

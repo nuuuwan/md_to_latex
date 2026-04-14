@@ -45,8 +45,8 @@ def _create_about_files(book_dir):
 
 
 def _create_chapter01(part1_dir):
-    """Create chapter-01 content for Part 1."""
-    ch1_dir = os.path.join(part1_dir, "chapter-01")
+    """Create chapter-01-getting-started content for Part 1."""
+    ch1_dir = os.path.join(part1_dir, "chapter-01-getting-started")
     os.makedirs(ch1_dir, exist_ok=True)
 
     ch1_file1 = (
@@ -74,8 +74,8 @@ def _create_chapter01(part1_dir):
 
 
 def _create_chapter02(part1_dir):
-    """Create chapter-02 content for Part 1."""
-    ch2_dir = os.path.join(part1_dir, "chapter-02")
+    """Create chapter-02-background-info content for Part 1."""
+    ch2_dir = os.path.join(part1_dir, "chapter-02-background-info")
     os.makedirs(ch2_dir, exist_ok=True)
 
     ch2_file1 = (
@@ -101,7 +101,7 @@ def _create_part1_chapters(part1_dir):
 
 def _create_part2_chapters(part2_dir):
     """Create chapters for Part 2."""
-    ch3_dir = os.path.join(part2_dir, "chapter-03")
+    ch3_dir = os.path.join(part2_dir, "chapter-03-deep-dive")
     os.makedirs(ch3_dir, exist_ok=True)
 
     ch3_file1 = (
@@ -139,12 +139,12 @@ def example_book_dir():
         _create_about_files(book_dir)
 
         # Part 1
-        part1_dir = os.path.join(book_dir, "part-1")
+        part1_dir = os.path.join(book_dir, "part-1-introduction")
         os.makedirs(part1_dir)
         _create_part1_chapters(part1_dir)
 
         # Part 2
-        part2_dir = os.path.join(book_dir, "part-2")
+        part2_dir = os.path.join(book_dir, "part-2-advanced-topics")
         os.makedirs(part2_dir)
         _create_part2_chapters(part2_dir)
 
