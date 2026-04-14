@@ -30,9 +30,7 @@ class BookLatexConfigMixin:
         doc.preamble.append(Package("dirtytalk"))
         doc.preamble.append(Package("xcolor"))
         doc.preamble.append(NoEscape(r"\definecolor{maroon}{RGB}{128,0,0}"))
-        doc.preamble.append(
-            NoEscape(r"\definecolor{darkgrey}{RGB}{80,80,80}")
-        )
+        doc.preamble.append(NoEscape(r"\definecolor{darkgrey}{RGB}{80,80,80}"))
         doc.preamble.append(
             NoEscape(r"\renewcommand{\say}[1]{\textcolor{maroon}{``#1''}}")
         )
