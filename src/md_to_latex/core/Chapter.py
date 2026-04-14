@@ -32,9 +32,20 @@ class Chapter:
         return [os.path.join(self.chapter_dir, f) for f in files]
 
     def _extract_title(self):
-        """Extract chapter title from the first line of the first file."""
+        """Extract chapter title from the first line of the first file, or from kebab-case dir name."""
         if not self._md_files:
-            return os.path.basename(self.chapter_dir).title()
+            # Try to extract from directory name: chapter-<NN>-<name>
+            dirname = os.path.basename(self.chapter_dir)
+            match = re.match(r"chapter-(\d+)-(.+)", dirname)
+            if match:
+                chapter_num = int(match.group(1))
+                chapter_name = match.group(2).replace('-', ' ').title()
+                return f"Chapter {chapter_num}: {chapter_name}"
+            # Fallback: chapter-<NN>
+            match = re.match(r"chapter-(\d+)$", dirname)
+            if match:
+                return f"Chapter {int(match.group(1))}"
+            return dirname.title()
         with open(self._md_files[0], "r", encoding="utf-8") as f:
             first_line = f.readline().strip()
         # Remove markdown heading markers if present

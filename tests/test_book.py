@@ -42,6 +42,14 @@ class TestBookInit(unittest.TestCase):
         with open(metadata_file, "w", encoding="utf-8") as f:
             json.dump(metadata, f)
 
+        # Add part and chapter folders in new format
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
+        os.makedirs(part_dir)
+        chapter_dir = os.path.join(part_dir, "chapter-01-getting-started")
+        os.makedirs(chapter_dir)
+        with open(os.path.join(chapter_dir, "001.md"), "w", encoding="utf-8") as f:
+            f.write("# Chapter Title\n\nContent.")
+
         book = Book(self.temp_dir)
         self.assertEqual(book.title, "Test Book")
         self.assertEqual(book.subtitle, "A Test")
@@ -52,6 +60,14 @@ class TestBookInit(unittest.TestCase):
 
     def test_book_creation_without_metadata(self):
         """Test book creation without metadata.json."""
+        # Add part and chapter folders in new format
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
+        os.makedirs(part_dir)
+        chapter_dir = os.path.join(part_dir, "chapter-01-getting-started")
+        os.makedirs(chapter_dir)
+        with open(os.path.join(chapter_dir, "001.md"), "w", encoding="utf-8") as f:
+            f.write("# Chapter Title\n\nContent.")
+
         book = Book(self.temp_dir)
         # Should use directory name as title
         self.assertEqual(book.title, os.path.basename(self.temp_dir))

@@ -15,7 +15,7 @@ class TestChapterInit(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.chapter_dir = os.path.join(self.temp_dir, "chapter-01")
+        self.chapter_dir = os.path.join(self.temp_dir, "chapter-01-getting-started")
         os.makedirs(self.chapter_dir)
 
     def tearDown(self):

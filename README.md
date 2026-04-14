@@ -59,20 +59,21 @@ book/
 ├── metadata.json
 ├── about-the-author.md
 ├── about-the-book.md
-├── part-1/
-│   ├── chapter-01/
+
+├── part-1-introduction/
+│   ├── chapter-01-getting-started/
 │   │   ├── 001.md
 │   │   └── 002.md
-│   └── chapter-02/
+│   └── chapter-02-background-info/
 │       └── 001.md
-└── part-2/
-    └── chapter-03/
-        └── 001.md
+└── part-2-advanced-topics/
+  └── chapter-03-deep-dive/
+    └── 001.md
 ```
 
 - **Book directory**: can be named anything (e.g. `book/`, `my-novel/`)
-- **Part directories**: named `part-N` (e.g. `part-1`, `part-2`), placed directly inside the book directory. The title shown in output is derived from the number (e.g. "Part 1").
-- **Chapter directories**: named `chapter-NN` (e.g. `chapter-01`, `chapter-12`), placed inside each part directory.
+- **Part directories**: named `part-<N>-<part-name-in-kebab>` (e.g. `part-1-introduction`, `part-2-advanced-topics`), placed directly inside the book directory. The title shown in output is derived from the number and name (e.g. "Part 1: Introduction").
+- **Chapter directories**: named `chapter-<NN>-<chapter-name-in-kebab>` (e.g. `chapter-01-getting-started`, `chapter-12-summary`), placed inside each part directory.
 - **Markdown files**: named `NNN.md` (e.g. `001.md`, `002.md`), placed inside each chapter directory. Multiple files per chapter are concatenated in numeric order. The first line of the first file is used as the chapter title.
 - **Supplementary files** (`about-the-author.md`, `about-the-book.md`, `metadata.json`): placed directly in the book directory.
 

@@ -21,28 +21,34 @@ class Part:
         self.chapters = self._load_chapters()
 
     def _extract_title(self):
-        """Extract part title from directory name."""
+        """Extract part title from directory name (supports kebab-case)."""
         dirname = os.path.basename(self.part_dir)
-        # Expected format: part-<n>
+        # Expected format: part-<n>-<name>
+        match = re.match(r"part-(\d+)-(.+)", dirname)
+        if match:
+            part_num = int(match.group(1))
+            part_name = match.group(2).replace('-', ' ').title()
+            return f"Part {part_num}: {part_name}"
+        # Fallback: part-<n>
         match = re.match(r"part-(\d+)$", dirname)
         if match:
             return f"Part {int(match.group(1))}"
         return dirname.title()
 
     def _load_chapters(self):
-        """Load all chapter-NN subdirectories in the part directory."""
+        """Load all chapter-<NN>-<name> subdirectories in the part directory."""
         chapters = []
 
         if not os.path.isdir(self.part_dir):
             return chapters
 
-        # Get all chapter-NN subdirectories
+        # Get all chapter-<NN>-<name> subdirectories
         chapter_dirs = [
             d
             for d in os.listdir(self.part_dir)
             if (
                 os.path.isdir(os.path.join(self.part_dir, d))
-                and re.fullmatch(r"chapter-\d+", d)
+                and re.fullmatch(r"chapter-\d+-[a-z0-9\-]+", d)
             )
         ]
 

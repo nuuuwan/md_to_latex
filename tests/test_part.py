@@ -26,7 +26,8 @@ class TestPartInit(unittest.TestCase):
                 os.rmdir(os.path.join(root, name))
         os.rmdir(self.temp_dir)
 
-    def _make_chapter_dir(self, part_dir, dirname, title="Chapter Title"):
+    def _make_chapter_dir(self, part_dir, chapter_num, chapter_name_kebab, title="Chapter Title"):
+        dirname = f"chapter-{chapter_num:02d}-{chapter_name_kebab}"
         ch_dir = os.path.join(part_dir, dirname)
         os.makedirs(ch_dir, exist_ok=True)
         with open(os.path.join(ch_dir, "001.md"), "w", encoding="utf-8") as f:
@@ -35,20 +36,20 @@ class TestPartInit(unittest.TestCase):
 
     def test_part_creation(self):
         """Test basic part creation."""
-        part_dir = os.path.join(self.temp_dir, "part-1")
+        part_dir = os.path.join(self.temp_dir, "part-1-intro")
         os.makedirs(part_dir)
-        self._make_chapter_dir(part_dir, "chapter-01", "Chapter One")
+        self._make_chapter_dir(part_dir, 1, "getting-started", "Chapter One")
 
         part = Part(part_dir)
-        self.assertEqual(part.title, "Part 1")
+        self.assertTrue(part.title.startswith("Part 1"))
         self.assertEqual(len(part.chapters), 1)
 
     def test_title_extraction_from_dirname(self):
         """Test title extraction from directory name."""
         test_cases = [
-            ("part-1", "Part 1"),
-            ("part-2", "Part 2"),
-            ("part-10", "Part 10"),
+            ("part-1-intro", "Part 1: Intro"),
+            ("part-2-background", "Part 2: Background"),
+            ("part-10-appendix", "Part 10: Appendix"),
         ]
 
         for dirname, expected_title in test_cases:

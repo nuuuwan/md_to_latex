@@ -34,13 +34,13 @@ class BookLoaderMixin:
         if not os.path.isdir(self.book_dir):
             return parts
 
-        # Get all part-N directories directly inside the book dir
+        # Get all part-<N>-<name> directories directly inside the book dir
         part_dirs = [
             d
             for d in os.listdir(self.book_dir)
             if (
                 os.path.isdir(os.path.join(self.book_dir, d))
-                and re.fullmatch(r"part-\d+", d)
+                and re.fullmatch(r"part-\d+-[a-z0-9\-]+", d)
             )
         ]
 
