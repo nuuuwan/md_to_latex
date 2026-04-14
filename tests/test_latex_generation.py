@@ -85,7 +85,7 @@ class TestPartLatexGeneration(unittest.TestCase):
             doc = Document()
             part.to_latex(doc)
             latex_str = doc.dumps()
-            self.assertIn(r"\part{Part 1: Intro}", latex_str)
+            self.assertIn(r"\part{Intro}", latex_str)
             self.assertIn("Chapter One", latex_str)
 
 
@@ -244,8 +244,8 @@ class TestExampleBookLatexGeneration(unittest.TestCase):
             self.assertIn("Jane Doe", content)
             self.assertIn(r"\maketitle", content)
             self.assertIn(r"\tableofcontents", content)
-            self.assertIn(r"\part{Part 1: Introduction}", content)
-            self.assertIn(r"\part{Part 2: Advanced Topics}", content)
+            self.assertIn(r"\part{Introduction}", content)
+            self.assertIn(r"\part{Advanced Topics}", content)
 
         file_size = os.path.getsize(tex_file)
         self.assertGreater(

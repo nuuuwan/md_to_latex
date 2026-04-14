@@ -43,15 +43,15 @@ class TestPartInit(unittest.TestCase):
         self._make_chapter_dir(part_dir, 1, "getting-started", "Chapter One")
 
         part = Part(part_dir)
-        self.assertTrue(part.title.startswith("Part 1"))
+        self.assertEqual(part.title, "Intro")
         self.assertEqual(len(part.chapters), 1)
 
     def test_title_extraction_from_dirname(self):
         """Test title extraction from directory name."""
         test_cases = [
-            ("part-1-intro", "Part 1: Intro"),
-            ("part-2-background", "Part 2: Background"),
-            ("part-10-appendix", "Part 10: Appendix"),
+            ("part-1-intro", "Intro"),
+            ("part-2-background", "Background"),
+            ("part-10-appendix", "Appendix"),
         ]
 
         for dirname, expected_title in test_cases:
