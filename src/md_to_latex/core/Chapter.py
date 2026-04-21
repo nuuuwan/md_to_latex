@@ -19,6 +19,38 @@ class Chapter:
         self.title = self._extract_title()
         self.content = self._read_content()
 
+    @classmethod
+    def from_file(cls, file_path):
+        """
+        Create a Chapter from a single markdown file (flat format).
+
+        The title is derived from the filename (chapter-NN-title.md).
+
+        Args:
+            file_path: Path to the .md file (e.g., chapter-01-getting-started.md)
+        """
+        instance = cls.__new__(cls)
+        instance.chapter_dir = None
+        instance._md_files = [file_path]
+        instance.title = cls._extract_title_from_filename(
+            os.path.basename(file_path)
+        )
+        with open(file_path, "r", encoding="utf-8") as f:
+            instance.content = f.read()
+        return instance
+
+    @staticmethod
+    def _extract_title_from_filename(filename):
+        """Extract chapter title from a flat-format filename."""
+        name = re.sub(r"\.md$", "", filename)
+        match = re.match(r"chapter-(\d+)-(.+)", name)
+        if match:
+            return match.group(2).replace("-", " ").title()
+        match = re.match(r"chapter-(\d+)$", name)
+        if match:
+            return f"Chapter {int(match.group(1))}"
+        return name.replace("-", " ").title()
+
     def _sorted_md_files(self):
         """Return sorted list of NNN.md file paths in the chapter dir."""
         if not os.path.isdir(self.chapter_dir):

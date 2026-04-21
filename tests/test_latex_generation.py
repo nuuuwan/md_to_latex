@@ -222,13 +222,13 @@ class TestBookLatexGeneration(unittest.TestCase):
 
 
 class TestExampleBookLatexGeneration(unittest.TestCase):
-    """Test full LaTeX generation with the example book."""
+    """Test full LaTeX generation with the format-1 example book."""
 
     @classmethod
     def setUpClass(cls):
         """Set up test fixtures once for all tests."""
         cls.example_dir = os.path.join(
-            os.path.dirname(__file__), "input", "example-book"
+            os.path.dirname(__file__), "input", "example-book-1"
         )
         cls.has_example = os.path.isdir(cls.example_dir)
 

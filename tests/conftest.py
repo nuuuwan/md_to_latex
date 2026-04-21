@@ -124,26 +124,20 @@ def _create_part2_chapters(part2_dir):
 @pytest.fixture(scope="session")
 def example_book_dir():
     """
-    Create an example book directory structure for testing.
-
-    This fixture creates a temporary directory with the full structure
-    of an example book, including metadata, parts, chapters, and files.
+    Create a format-1 example book (parts + chapter dirs) for testing.
     """
-    # Create temporary directory
     temp_dir = tempfile.mkdtemp(prefix="md_to_latex_test_")
-    book_dir = os.path.join(temp_dir, "example-book")
+    book_dir = os.path.join(temp_dir, "example-book-1")
     os.makedirs(book_dir)
 
     try:
         _create_metadata_file(book_dir)
         _create_about_files(book_dir)
 
-        # Part 1
         part1_dir = os.path.join(book_dir, "part-1-introduction")
         os.makedirs(part1_dir)
         _create_part1_chapters(part1_dir)
 
-        # Part 2
         part2_dir = os.path.join(book_dir, "part-2-advanced-topics")
         os.makedirs(part2_dir)
         _create_part2_chapters(part2_dir)
@@ -151,34 +145,92 @@ def example_book_dir():
         yield book_dir
 
     finally:
-        # Cleanup temporary directory
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+def _create_flat_chapters(book_dir):
+    """Create top-level chapter-NN-*.md files for format-2 example book."""
+    chapters = [
+        (
+            "chapter-01-getting-started.md",
+            "# Getting Started\n\n"
+            "This chapter introduces the **art of writing**^[Writing is one of humanity's oldest communication tools.]. "
+            "Writing is *fundamental* to human communication.\n\n"
+            "...\n\n"
+            'As the famous author said, "Writing is thinking on paper."^[This quote is widely attributed to Howard Nemerov.]\n\n'
+            "Writing involves both **creativity** and *discipline*^[*Discipline* here means consistent daily practice.]. "
+            'The best writers understand that "practice makes perfect" '
+            "and dedicate themselves to their craft.\n",
+        ),
+        (
+            "chapter-02-the-writing-process.md",
+            "# The Writing Process\n\n"
+            "The **writing process**^[The term *writing process* was popularized in the 1970s.] involves several *key stages*:\n\n"
+            "1. **Planning**: Think about what you want to say\n"
+            "2. **Drafting**: Write your first draft^[A first draft should be written without self-censorship.]\n"
+            "3. **Revising**: Improve your work\n"
+            "4. **Editing**: Polish the details\n\n"
+            'As Hemingway said, "The first draft of anything is garbage."^[Source: Ernest Hemingway.] '
+            "Embrace **revision** as a *crucial* part of the process.\n",
+        ),
+        (
+            "chapter-03-advanced-techniques.md",
+            "# Advanced Techniques\n\n"
+            "**Advanced writers**^[An *advanced writer* typically has at least five years of consistent practice.] develop their own *unique voice*. "
+            "This chapter explores sophisticated techniques.\n\n"
+            "## Finding Your Voice\n\n"
+            "Your voice should be **authentic** and *distinctive*^[Distinctiveness comes from reading widely and writing often.]. "
+            'As writers often say, "Write what you know"^[This refers to emotional truth, not literal experience.] '
+            "and let your personality shine through.\n\n"
+            "## Style and Tone\n\n"
+            "Mastering **style**^[**Style** encompasses word choice, sentence rhythm, and paragraph structure.] and *tone* takes practice. "
+            'Remember that "less is more"^[Attributed to Ludwig Mies van der Rohe, later adopted by writers.] '
+            "when it comes to effective writing.\n",
+        ),
+    ]
+    for filename, content in chapters:
+        with open(
+            os.path.join(book_dir, filename), "w", encoding="utf-8"
+        ) as f:
+            f.write(content)
+
+
+@pytest.fixture(scope="session")
+def example_book_2_dir():
+    """
+    Create a format-2 example book (flat top-level chapter .md files) for testing.
+    """
+    temp_dir = tempfile.mkdtemp(prefix="md_to_latex_test_")
+    book_dir = os.path.join(temp_dir, "example-book-2")
+    os.makedirs(book_dir)
+
+    try:
+        _create_metadata_file(book_dir)
+        _create_about_files(book_dir)
+        _create_flat_chapters(book_dir)
+
+        yield book_dir
+
+    finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_example_book_in_tests_input(example_book_dir):
+def create_example_book_in_tests_input(example_book_dir, example_book_2_dir):
     """
-    Copy the example book to tests/input/example-book for integration tests.
-
-    This fixture automatically runs and ensures the example book exists
-    in the expected location for all tests.
+    Copy both example books to tests/input/ for integration tests.
     """
-    # Create tests/input directory if it doesn't exist
     tests_dir = os.path.dirname(__file__)
     input_dir = os.path.join(tests_dir, "input")
     os.makedirs(input_dir, exist_ok=True)
 
-    # Target directory for example book
-    target_dir = os.path.join(input_dir, "example-book")
+    for src_dir, name in [
+        (example_book_dir, "example-book-1"),
+        (example_book_2_dir, "example-book-2"),
+    ]:
+        target_dir = os.path.join(input_dir, name)
+        if os.path.exists(target_dir):
+            shutil.rmtree(target_dir)
+        shutil.copytree(src_dir, target_dir)
 
-    # Remove existing directory if present
-    if os.path.exists(target_dir):
-        shutil.rmtree(target_dir)
-
-    # Copy example book to tests/input
-    shutil.copytree(example_book_dir, target_dir)
-
-    yield target_dir
-
-    # Optionally cleanup after all tests (commented out to keep for inspection)
-    # shutil.rmtree(target_dir, ignore_errors=True)
+    yield input_dir

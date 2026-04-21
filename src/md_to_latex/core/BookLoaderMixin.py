@@ -4,6 +4,7 @@ import re
 
 from rich.console import Console
 
+from md_to_latex.core.Chapter import Chapter
 from md_to_latex.core.Part import Part
 
 console = Console()
@@ -26,6 +27,30 @@ class BookLoaderMixin:
                 )
                 return {}
         return {}
+
+    def _detect_format(self):
+        """
+        Detect the book format.
+
+        Returns 1 if the book uses part/chapter directories (format 1),
+        or 2 if chapters are top-level .md files (format 2).
+        """
+        if not os.path.isdir(self.book_dir):
+            return 1
+        entries = os.listdir(self.book_dir)
+        has_parts = any(
+            re.fullmatch(r"part-\d+-[a-z0-9\-]+", e)
+            and os.path.isdir(os.path.join(self.book_dir, e))
+            for e in entries
+        )
+        if has_parts:
+            return 1
+        has_flat_chapters = any(
+            re.fullmatch(r"chapter-\d+.*\.md", e) for e in entries
+        )
+        if has_flat_chapters:
+            return 2
+        return 1
 
     def _load_parts(self):
         """Load all parts directly from the book directory."""
@@ -53,6 +78,22 @@ class BookLoaderMixin:
 
         return parts
 
+    def _load_chapters_flat(self):
+        """Load chapters from top-level chapter-NN-*.md files (format 2)."""
+        if not os.path.isdir(self.book_dir):
+            return []
+
+        files = [
+            f
+            for f in os.listdir(self.book_dir)
+            if re.fullmatch(r"chapter-\d+.*\.md", f)
+        ]
+        files.sort(key=lambda f: int(re.match(r"chapter-(\d+)", f).group(1)))
+
+        return [
+            Chapter.from_file(os.path.join(self.book_dir, f)) for f in files
+        ]
+
     def _load_about_file(self, filename):
         """Load content from an about file."""
         file_path = os.path.join(self.book_dir, filename)
@@ -74,22 +115,21 @@ class BookLoaderMixin:
         for part in self.parts:
             for chapter in part.chapters:
                 word_count += len(chapter.content.split())
+        for chapter in self.chapters:
+            word_count += len(chapter.content.split())
         return word_count
 
     def _has_section_breaks(self):
         """Check if any chapter content contains section break markers."""
         pattern = re.compile(r"^\s*(---|\.\.\.)\s*$", re.MULTILINE)
 
-        # Check all chapter content
-        has_breaks_in_chapters = any(
-            pattern.search(chapter.content)
-            for part in self.parts
-            for chapter in part.chapters
-        )
-        if has_breaks_in_chapters:
+        all_chapters = [
+            chapter for part in self.parts for chapter in part.chapters
+        ] + list(self.chapters)
+
+        if any(pattern.search(ch.content) for ch in all_chapters):
             return True
 
-        # Check about files
         has_breaks_in_about = (
             self.about_book and pattern.search(self.about_book)
         ) or (self.about_author and pattern.search(self.about_author))

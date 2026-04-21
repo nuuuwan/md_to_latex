@@ -49,7 +49,13 @@ class Book(
         self.year = self.metadata.get("year")
         self.edition = self.metadata.get("edition")
         self.publisher = self.metadata.get("publisher")
-        self.parts = self._load_parts()
+        self.format = self._detect_format()
+        if self.format == 2:
+            self.parts = []
+            self.chapters = self._load_chapters_flat()
+        else:
+            self.parts = self._load_parts()
+            self.chapters = []
         self.about_author_title, self.about_author = self._load_about_file(
             "about-the-author.md"
         )
@@ -81,8 +87,12 @@ class Book(
         self._setup_document_metadata(doc)
         self._add_front_matter(doc)
 
-        for part in self.parts:
-            part.to_latex(doc)
+        if self.format == 2:
+            for chapter in self.chapters:
+                chapter.to_latex(doc)
+        else:
+            for part in self.parts:
+                part.to_latex(doc)
 
         # Use kebab-case for file name
         file_name = self._to_kebab_case(self.title)
