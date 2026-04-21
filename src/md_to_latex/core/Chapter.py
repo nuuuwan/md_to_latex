@@ -24,7 +24,7 @@ class Chapter:
         """
         Create a Chapter from a single markdown file (flat format).
 
-        The title is derived from the filename (chapter-NN-title.md).
+        The title is extracted from the first heading in the file.
 
         Args:
             file_path: Path to the .md file (e.g., chapter-01-getting-started.md)
@@ -32,12 +32,23 @@ class Chapter:
         instance = cls.__new__(cls)
         instance.chapter_dir = None
         instance._md_files = [file_path]
-        instance.title = cls._extract_title_from_filename(
-            os.path.basename(file_path)
-        )
         with open(file_path, "r", encoding="utf-8") as f:
             instance.content = f.read()
+        instance.title = cls._extract_title_from_content(
+            instance.content
+        ) or cls._extract_title_from_filename(os.path.basename(file_path))
         return instance
+
+    @staticmethod
+    def _extract_title_from_content(content):
+        """Extract the title from the first # heading in the content."""
+        match = re.search(r"^#\s+(.+)", content, re.MULTILINE)
+        if match:
+            title = match.group(1).strip()
+            # Strip leading number (e.g. "1. Title" or "1 Title" -> "Title")
+            title = re.sub(r"^\d+[.:]?\s+", "", title)
+            return title
+        return None
 
     @staticmethod
     def _extract_title_from_filename(filename):
@@ -84,6 +95,11 @@ class Chapter:
             with open(file_path, "r", encoding="utf-8") as f:
                 parts.append(f.read())
         return "".join(parts)
+
+    @staticmethod
+    def _strip_first_heading(text):
+        """Remove the first top-level # heading line from the content."""
+        return re.sub(r"^#[ \t]+.+\n?", "", text, count=1, flags=re.MULTILINE)
 
     def _convert_headings(self, text):
         """Convert markdown headings to LaTeX sections."""
@@ -179,7 +195,8 @@ class Chapter:
             doc: PyLaTeX Document object
         """
         doc.append(NoEscape(r"\chapter{" + self.title + "}"))
-        latex_content = self._parse_markdown_to_latex(self.content)
+        content = self._strip_first_heading(self.content)
+        latex_content = self._parse_markdown_to_latex(content)
         doc.append(NoEscape(latex_content))
 
         # Add page break after chapter

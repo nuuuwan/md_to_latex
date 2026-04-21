@@ -222,15 +222,16 @@ def create_example_book_in_tests_input(example_book_dir, example_book_2_dir):
     """
     tests_dir = os.path.dirname(__file__)
     input_dir = os.path.join(tests_dir, "input")
-    os.makedirs(input_dir, exist_ok=True)
+
+    # Remove the entire input directory to ensure no stale files remain
+    if os.path.exists(input_dir):
+        shutil.rmtree(input_dir)
+    os.makedirs(input_dir)
 
     for src_dir, name in [
         (example_book_dir, "example-book-1"),
         (example_book_2_dir, "example-book-2"),
     ]:
-        target_dir = os.path.join(input_dir, name)
-        if os.path.exists(target_dir):
-            shutil.rmtree(target_dir)
-        shutil.copytree(src_dir, target_dir)
+        shutil.copytree(src_dir, os.path.join(input_dir, name))
 
     yield input_dir

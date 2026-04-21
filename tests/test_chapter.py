@@ -87,6 +87,92 @@ class TestChapterInit(unittest.TestCase):
         self.assertEqual(chapter.content, "")
 
 
+class TestChapterFromFile(unittest.TestCase):
+    """Test Chapter.from_file() (flat format)."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        for root, dirs, files in os.walk(self.temp_dir, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(self.temp_dir)
+
+    def _write(self, filename, content):
+        path = os.path.join(self.temp_dir, filename)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
+        return path
+
+    def test_title_from_heading(self):
+        """Title is taken from the first # heading in the file."""
+        path = self._write(
+            "chapter-01-ignored-name.md",
+            "# My Real Title\n\nSome content here.",
+        )
+        chapter = Chapter.from_file(path)
+        self.assertEqual(chapter.title, "My Real Title")
+
+    def test_title_fallback_to_filename(self):
+        """Falls back to filename-derived title when no heading present."""
+        path = self._write(
+            "chapter-02-fallback-title.md",
+            "No heading here, just content.",
+        )
+        chapter = Chapter.from_file(path)
+        self.assertEqual(chapter.title, "Fallback Title")
+
+    def test_content_loaded(self):
+        """Content of the file is loaded in full."""
+        path = self._write(
+            "chapter-03-content.md",
+            "# Chapter Three\n\nParagraph one.\n\nParagraph two.",
+        )
+        chapter = Chapter.from_file(path)
+        self.assertIn("Paragraph one.", chapter.content)
+        self.assertIn("Paragraph two.", chapter.content)
+
+    def test_heading_stripped_in_to_latex(self):
+        """The first # heading is stripped from content when rendering to LaTeX."""
+        path = self._write(
+            "chapter-04-heading.md",
+            "# Keep This\n\nBody text.",
+        )
+        chapter = Chapter.from_file(path)
+        # Heading is still in raw content
+        self.assertIn("# Keep This", chapter.content)
+        # But stripped heading is not re-emitted as \section* in to_latex output
+        doc_content = chapter._strip_first_heading(chapter.content)
+        self.assertNotIn("# Keep This", doc_content)
+        self.assertIn("Body text.", doc_content)
+
+    def test_title_leading_number_stripped(self):
+        """Leading numbers are stripped from the heading-derived title."""
+        for raw, expected in [
+            ("# 1. My Chapter", "My Chapter"),
+            ("# 2 The Next One", "The Next One"),
+            ("# 10. Advanced", "Advanced"),
+        ]:
+            path = self._write(
+                "chapter-06-numbered.md",
+                f"{raw}\n\nContent.",
+            )
+            chapter = Chapter.from_file(path)
+            self.assertEqual(chapter.title, expected)
+
+    def test_title_uses_first_heading_only(self):
+        """Only the first # heading is used as the title."""
+        path = self._write(
+            "chapter-05-multi-heading.md",
+            "# First Heading\n\n## Second Heading\n\nContent.",
+        )
+        chapter = Chapter.from_file(path)
+        self.assertEqual(chapter.title, "First Heading")
+
+
 class TestMarkdownParsing(unittest.TestCase):
     """Test markdown to LaTeX conversion."""
 

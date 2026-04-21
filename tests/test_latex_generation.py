@@ -48,7 +48,10 @@ class TestChapterLatexGeneration(unittest.TestCase):
 
         # Generate LaTeX string
         latex_str = doc.dumps()
-        self.assertIn("Test Chapter", latex_str)
+        # Title comes from directory name (format-1), not heading
+        self.assertIn("Getting Started", latex_str)
+        # Heading is not duplicated as a \section* in the body
+        self.assertNotIn(r"\section*{Test Chapter}", latex_str)
         self.assertIn(r"\textbf{bold}", latex_str)
 
 
@@ -292,6 +295,67 @@ class TestExampleBookLatexGeneration(unittest.TestCase):
         # If PDF generation succeeded, verify PDF exists and has content
         if output_file.endswith(".pdf"):
             self._verify_pdf_file(pdf_file)
+
+
+class TestExampleBook2LatexGeneration(unittest.TestCase):
+    """Test full LaTeX generation with the format-2 example book."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up test fixtures once for all tests."""
+        cls.example_dir = os.path.join(
+            os.path.dirname(__file__), "input", "example-book-2"
+        )
+        cls.has_example = os.path.isdir(cls.example_dir)
+
+    def _verify_tex_file(self, tex_file):
+        """Helper to verify format-2 LaTeX file content."""
+        self.assertTrue(
+            os.path.exists(tex_file), f"LaTeX file not found at {tex_file}"
+        )
+
+        with open(tex_file, "r", encoding="utf-8") as f:
+            content = f.read()
+            self.assertIn("The Example Novel", content)
+            self.assertIn("Jane Doe", content)
+            self.assertIn(r"\maketitle", content)
+            self.assertIn(r"\tableofcontents", content)
+            # Format-2 has no \part{} commands
+            self.assertNotIn(r"\part{", content)
+            # But does have chapters
+            self.assertIn(r"\chapter{", content)
+
+        file_size = os.path.getsize(tex_file)
+        self.assertGreater(
+            file_size, 1000, f"LaTeX file too small: {file_size} bytes"
+        )
+
+    def test_generate_example_book_2_latex(self):
+        """Test generating LaTeX and PDF from the format-2 example book."""
+        if not self.has_example:
+            self.skipTest("Example book 2 not found")
+
+        book = Book(self.example_dir)
+        output_file = book.toLatex()
+
+        self.assertTrue(
+            os.path.exists(book.output_dir),
+            f"Output directory not found: {book.output_dir}",
+        )
+        self.assertTrue(
+            os.path.exists(output_file),
+            f"Output file not found: {output_file}",
+        )
+
+        file_name = book._to_kebab_case(book.title)
+        tex_file = os.path.join(book.output_dir, f"{file_name}.tex")
+        pdf_file = os.path.join(book.output_dir, f"{file_name}.pdf")
+
+        self._verify_tex_file(tex_file)
+
+        if output_file.endswith(".pdf"):
+            pdf_size = os.path.getsize(pdf_file)
+            self.assertGreater(pdf_size, 5000)
 
 
 if __name__ == "__main__":
