@@ -148,6 +148,16 @@ class TestMarkdownParsing(unittest.TestCase):
         latex = chapter._parse_markdown_to_latex(chapter.content)
         self.assertIn(r"\subsection*{Subsection}", latex)
 
+    def test_footnote_conversion(self):
+        """Test footnote conversion."""
+        chapter = self._make_chapter(
+            "# Title\n\nSome text^[This is the footnote content] continues here."
+        )
+        latex = chapter._parse_markdown_to_latex(chapter.content)
+        self.assertIn(r"\footnote{This is the footnote content}", latex)
+        self.assertIn("Some text", latex)
+        self.assertIn("continues here.", latex)
+
     def test_section_break_conversion(self):
         """Test section break conversion."""
         for break_marker in ["---", "..."]:

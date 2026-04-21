@@ -75,7 +75,9 @@ class Chapter:
         )
 
         # Bold: **text** or __text__
-        text = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL)
+        text = re.sub(
+            r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
+        )
         text = re.sub(r"__(.+?)__", r"\\textbf{\1}", text, flags=re.DOTALL)
 
         # Italic: *text* or _text_
@@ -106,6 +108,9 @@ class Chapter:
         """
         text = self._convert_bold_italic(text)
         text = self._convert_headings(text)
+
+        # Footnotes: ^[content] -> \footnote{content}
+        text = re.sub(r"\^\[([^\]]+)\]", r"\\footnote{\1}", text)
 
         # Section breaks: --- or ... on their own line
         text = re.sub(

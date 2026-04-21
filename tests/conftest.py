@@ -51,12 +51,12 @@ def _create_chapter01(part1_dir):
 
     ch1_file1 = (
         "# Introduction to Writing\n\n"
-        "This chapter introduces the **art of writing**. "
+        "This chapter introduces the **art of writing**^[Writing is one of humanity's oldest communication tools.]. "
         "Writing is *fundamental* to human communication.\n\n"
         "...\n\n"
-        'As the famous author said, "Writing is thinking on paper."\n\n'
+        'As the famous author said, "Writing is thinking on paper."^[This quote is widely attributed to Howard Nemerov.]\n\n'
         "## Key Concepts\n\n"
-        "Writing involves both **creativity** and *discipline*. "
+        "Writing involves both **creativity** and *discipline*^[*Discipline* here means consistent daily practice.]. "
         'The best writers understand that "practice makes perfect" '
         "and dedicate themselves to their craft.\n"
     )
@@ -64,10 +64,10 @@ def _create_chapter01(part1_dir):
         f.write(ch1_file1)
 
     ch1_file2 = (
-        "When you sit down to write, the blank page can feel daunting. "
+        "When you sit down to write^[Some authors prefer writing by hand first.], the blank page can feel daunting. "
         "But every great work begins with a single sentence.\n\n"
-        "Remember that writing is a *process*, not a single act. "
-        "Allow yourself to **draft freely** before refining.\n"
+        "Remember that writing is a *process*, not a single act^[See also: the iterative model of composition.]. "
+        "Allow yourself to **draft freely**^[**Free writing** is a technique pioneered by Peter Elbow.] before refining.\n"
     )
     with open(os.path.join(ch1_dir, "002.md"), "w", encoding="utf-8") as f:
         f.write(ch1_file2)
@@ -80,12 +80,12 @@ def _create_chapter02(part1_dir):
 
     ch2_file1 = (
         "# The Writing Process\n\n"
-        "The **writing process** involves several *key stages*:\n\n"
+        "The **writing process**^[The term *writing process* was popularized in the 1970s by composition researchers.] involves several *key stages*:\n\n"
         "1. **Planning**: Think about what you want to say\n"
-        "2. **Drafting**: Write your first draft\n"
+        "2. **Drafting**: Write your first draft^[A first draft should be written without self-censorship.]\n"
         "3. **Revising**: Improve your work\n"
         "4. **Editing**: Polish the details\n\n"
-        'As Hemingway said, "The first draft of anything is garbage." '
+        'As Hemingway said, "The first draft of anything is garbage."^[Source: Ernest Hemingway, as quoted in various biographies.] '
         "This reminds us to embrace **revision** as a *crucial* part "
         "of the process. #ThisIsAHashtag\n"
     )
@@ -106,15 +106,15 @@ def _create_part2_chapters(part2_dir):
 
     ch3_file1 = (
         "# Advanced Techniques\n\n"
-        "**Advanced writers** develop their own *unique voice*. "
+        "**Advanced writers**^[An *advanced writer* typically has at least five years of consistent practice.] develop their own *unique voice*. "
         "This chapter explores sophisticated techniques.\n\n"
         "## Finding Your Voice\n\n"
-        "Your voice should be **authentic** and *distinctive*. "
-        'As writers often say, "Write what you know" and let your '
+        "Your voice should be **authentic** and *distinctive*^[Distinctiveness comes from reading widely and writing often.]. "
+        'As writers often say, "Write what you know"^[This advice is sometimes misunderstood; it refers to emotional truth, not literal experience.] and let your '
         "personality shine through.\n\n"
         "## Style and Tone\n\n"
-        "Mastering **style** and *tone* takes practice. "
-        'Remember that "less is more" when it comes to effective '
+        "Mastering **style**^[**Style** encompasses word choice, sentence rhythm, and paragraph structure.] and *tone* takes practice. "
+        'Remember that "less is more"^[Attributed to the architect Ludwig Mies van der Rohe, later adopted by writers.] when it comes to effective '
         "writing.\n"
     )
     with open(os.path.join(ch3_dir, "001.md"), "w", encoding="utf-8") as f:

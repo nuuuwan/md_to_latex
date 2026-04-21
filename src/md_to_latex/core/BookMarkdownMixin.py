@@ -18,6 +18,9 @@ class BookMarkdownMixin:
             flags=re.MULTILINE,
         )
 
+        # Footnotes: ^[content] -> \footnote{content}
+        text = re.sub(r"\^\[([^\]]+)\]", r"\\footnote{\1}", text)
+
         # Bold: **text**
         text = re.sub(
             r"\*\*(.+?)\*\*", r"\\textbf{\1}", text, flags=re.DOTALL
