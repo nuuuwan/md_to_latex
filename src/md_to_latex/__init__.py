@@ -1,6 +1,7 @@
 # md_to_latex (auto generate by build_inits.py)
 # flake8: noqa: F408
 
-from md_to_latex.core import (Book, BookFrontMatterMixin, BookLatexConfigMixin,
-                              BookLoaderMixin, BookMarkdownMixin,
-                              BookOutputMixin, Chapter, Part)
+from md_to_latex.core import (Book, BookDocxMixin, BookFrontMatterMixin,
+                              BookLatexConfigMixin, BookLoaderMixin,
+                              BookMarkdownMixin, BookOutputMixin, Chapter,
+                              Part)

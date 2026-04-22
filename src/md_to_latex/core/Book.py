@@ -3,6 +3,7 @@ import re
 
 from pylatex import Document
 
+from md_to_latex.core.BookDocxMixin import BookDocxMixin
 from md_to_latex.core.BookFrontMatterMixin import BookFrontMatterMixin
 from md_to_latex.core.BookLatexConfigMixin import BookLatexConfigMixin
 from md_to_latex.core.BookLoaderMixin import BookLoaderMixin
@@ -16,6 +17,7 @@ class Book(
     BookLatexConfigMixin,
     BookFrontMatterMixin,
     BookOutputMixin,
+    BookDocxMixin,
 ):
     """Represents a complete book with parts, chapters, and metadata."""
 
@@ -97,4 +99,6 @@ class Book(
         # Use kebab-case for file name
         file_name = self._to_kebab_case(self.title)
         output_path = os.path.join(self.output_dir, file_name)
-        return self._generate_output(doc, output_path)
+        result = self._generate_output(doc, output_path)
+        self._generate_docx(output_path)
+        return result

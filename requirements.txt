@@ -1,3 +1,4 @@
 utils-nuuuwan
 pylatex
+python-docx
 rich
