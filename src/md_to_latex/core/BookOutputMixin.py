@@ -32,6 +32,14 @@ class BookOutputMixin:
                 )
                 raise RuntimeError(msg)
 
+    def _cleanup_aux_files(self, tex_dir, base_name):
+        """Remove all compilation artifacts except .tex and .pdf files."""
+        keep_extensions = {".tex", ".pdf"}
+        for fname in os.listdir(tex_dir):
+            name, ext = os.path.splitext(fname)
+            if name == base_name and ext not in keep_extensions:
+                os.remove(os.path.join(tex_dir, fname))
+
     def _generate_output(self, doc, output_path):
         """Generate PDF or LaTeX file."""
         try:
@@ -40,8 +48,10 @@ class BookOutputMixin:
             tex_file = f"{output_path}.tex"
             tex_dir = os.path.dirname(tex_file)
             tex_filename = os.path.basename(tex_file)
+            base_name = os.path.splitext(tex_filename)[0]
 
             self._compile_pdf(tex_dir, tex_filename)
+            self._cleanup_aux_files(tex_dir, base_name)
 
             pdf_path = f"{output_path}.pdf"
             console.print(
