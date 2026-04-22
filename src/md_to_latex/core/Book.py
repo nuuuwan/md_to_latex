@@ -62,7 +62,7 @@ class Book(
         self.about_book_title, self.about_book = self._load_about_file(
             "about-the-book.md"
         )
-        self.output_dir = f"{book_dir}.latex"
+        self.output_dir = f"{book_dir}.compiled"
         self.word_count = 0  # Will be calculated when generating
 
     def toLatex(self):

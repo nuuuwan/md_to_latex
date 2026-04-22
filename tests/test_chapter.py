@@ -144,7 +144,8 @@ class TestChapterFromFile(unittest.TestCase):
         chapter = Chapter.from_file(path)
         # Heading is still in raw content
         self.assertIn("# Keep This", chapter.content)
-        # But stripped heading is not re-emitted as \section* in to_latex output
+        # But stripped heading is not re-emitted as \section* in to_latex
+        # output
         doc_content = chapter._strip_first_heading(chapter.content)
         self.assertNotIn("# Keep This", doc_content)
         self.assertIn("Body text.", doc_content)
