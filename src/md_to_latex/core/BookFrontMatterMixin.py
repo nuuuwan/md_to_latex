@@ -101,6 +101,7 @@ class BookFrontMatterMixin:
 
     def _add_front_matter(self, doc):
         """Add title, table of contents, and about sections."""
+        doc.append(NoEscape(r"\frontmatter"))
         doc.append(NoEscape(r"\maketitle"))
         self._add_copyright_page(doc)
         doc.append(NoEscape(r"\tableofcontents"))

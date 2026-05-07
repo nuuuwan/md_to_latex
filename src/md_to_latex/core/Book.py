@@ -1,7 +1,7 @@
 import os
 import re
 
-from pylatex import Document
+from pylatex import Document, NoEscape
 
 from md_to_latex.core.BookDocxMixin import BookDocxMixin
 from md_to_latex.core.BookFrontMatterMixin import BookFrontMatterMixin
@@ -88,6 +88,8 @@ class Book(
 
         self._setup_document_metadata(doc)
         self._add_front_matter(doc)
+
+        doc.append(NoEscape(r"\mainmatter"))
 
         if self.format == 2:
             for chapter in self.chapters:
