@@ -227,9 +227,14 @@ class BookDocxMixin:
             ref_r.font.name = _FONT
             ref_r.font.size = Pt(8)
             ref_r.font.superscript = True
-            text_r = note_p.add_run(f" {text}")
-            text_r.font.name = _FONT
-            text_r.font.size = Pt(9)
+            space_r = note_p.add_run(" ")
+            space_r.font.name = _FONT
+            space_r.font.size = Pt(9)
+            runs_before = len(note_p.runs)
+            self._docx_parse_inline(doc, note_p, text)
+            for run in note_p.runs[runs_before:]:
+                run.font.name = _FONT
+                run.font.size = Pt(9)
         self._fn_notes = []
 
     # ── Inline markdown parser ──────────────────────────────────────────────
